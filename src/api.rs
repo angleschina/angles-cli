@@ -17,6 +17,7 @@ pub struct Message {
     pub role: String,
     pub content: String,
     pub tool_calls: Option<Vec<ToolCall>>,
+    pub tool_call_id: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -198,7 +199,7 @@ mod openai_chat {
         let mut out = vec![json!({"role": "system", "content": system})];
         for msg in messages {
             if msg.role == "tool" {
-                out.push(json!({"role": "tool", "content": msg.content}));
+                out.push(json!({"role": "tool", "content": msg.content, "tool_call_id": msg.tool_call_id.as_deref().unwrap_or("")}));
             } else if msg.tool_calls.is_some() {
                 let tcs: Vec<serde_json::Value> = msg.tool_calls.as_ref().unwrap().iter().map(|tc| {
                     json!({"id": tc.id, "type": "function", "function": {"name": tc.name, "arguments": tc.arguments}})
@@ -317,7 +318,7 @@ mod anthropic_messages {
                 // Tool result → Anthropic tool_result content block
                 api_msgs.push(json!({
                     "role": "user",
-                    "content": [{"type": "tool_result", "content": msg.content}],
+                    "content": [{"type": "tool_result", "tool_use_id": msg.tool_call_id.as_deref().unwrap_or(""), "content": msg.content}],
                 }));
             } else if msg.tool_calls.is_some() {
                 // Assistant with tool calls → content blocks
@@ -483,7 +484,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
             _ => {}
         }
 
-        messages.push(Message { role: "user".into(), content: input.into(), tool_calls: None });
+        messages.push(Message { role: "user".into(), content: input.into(), tool_calls: None, tool_call_id: None });
 
         // Tool-call loop (max 20 iterations per user turn)
         for _ in 0..20 {
@@ -502,6 +503,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
                 role: "assistant".into(),
                 content: result.content.clone(),
                 tool_calls: if result.tool_calls.is_empty() { None } else { Some(result.tool_calls.clone()) },
+                tool_call_id: None,
             });
 
             // No tool calls → turn done
@@ -526,7 +528,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
                 }
                 println!();
 
-                messages.push(Message { role: "tool".into(), content: tool_result, tool_calls: None });
+                messages.push(Message { role: "tool".into(), content: tool_result, tool_calls: None, tool_call_id: Some(tc.id.clone()) });
             }
 
             // Check daily budget
@@ -546,7 +548,7 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
     let system_prompt = instructions::render(&cfg);
     let api_key = resolve_api_key(&cfg);
     let client = Client::new();
-    let mut messages = vec![Message { role: "user".into(), content: prompt.into(), tool_calls: None }];
+    let mut messages = vec![Message { role: "user".into(), content: prompt.into(), tool_calls: None, tool_call_id: None }];
 
     // Tool-call loop (max 20 iterations)
     let mut final_content = String::new();
@@ -561,6 +563,7 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
             role: "assistant".into(),
             content: result.content.clone(),
             tool_calls: if result.tool_calls.is_empty() { None } else { Some(result.tool_calls.clone()) },
+            tool_call_id: None,
         });
 
         if result.tool_calls.is_empty() { break; }
@@ -583,7 +586,7 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
             }
             eprintln!();
 
-            messages.push(Message { role: "tool".into(), content: tool_result, tool_calls: None });
+            messages.push(Message { role: "tool".into(), content: tool_result, tool_calls: None, tool_call_id: Some(tc.id.clone()) });
         }
     }
 
@@ -611,6 +614,7 @@ async fn generate_plan_async(
         role: "user".into(),
         content: prompt.into(),
         tool_calls: None,
+        tool_call_id: None,
     }];
     let result = stream_turn(&cfg, PLAN_SYSTEM_PROMPT, &api_key, &client, &messages, true).await?;
 
