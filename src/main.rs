@@ -82,11 +82,39 @@ fn main() {
         Some(cli::Commands::Resume { id }) => {
             let _ = id;
             println!("会话恢复功能开发中...");
-            println!("   当前的对话模型不支持跨会话持久化，将在 v0.3 实现。");
+            println!("   当前的对话模型不支持跨会话持久化，将在 v0.5 实现。");
         }
-        Some(cli::Commands::Plan) => {
-            println!("当前没有活跃的计划。");
-            println!("   计划管理功能将在 v0.3 实现。");
+        Some(cli::Commands::Plan { prompt }) => {
+            let cfg = config::load_or_default();
+            let prompt = match prompt {
+                Some(p) => p,
+                None => {
+                    print!("请输入任务描述: ");
+                    std::io::stdout().flush().ok();
+                    let mut input = String::new();
+                    std::io::stdin().read_line(&mut input).ok();
+                    input.trim().to_string()
+                }
+            };
+            if prompt.is_empty() {
+                eprintln!("任务描述不能为空。");
+                std::process::exit(1);
+            }
+            println!();
+            println!("  α  正在生成操作说明...");
+            match api::generate_plan(cfg, &prompt) {
+                Ok(steps) => {
+                    for (i, step) in steps.iter().enumerate() {
+                        println!("  {} {}", format!("[{}]", i + 1), step);
+                    }
+                    println!();
+                    println!("  ✓ 操作说明已生成 · {} 个步骤", steps.len());
+                }
+                Err(e) => {
+                    eprintln!("  生成失败: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         Some(cli::Commands::Update) => {
             println!("检查更新...");

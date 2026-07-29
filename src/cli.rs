@@ -46,8 +46,11 @@ pub enum Commands {
         id: String,
     },
 
-    /// 显示/管理当前任务计划
-    Plan,
+    /// 生成当前任务的操作说明计划
+    Plan {
+        /// 任务描述（为空则读取 stdin 或提示输入）
+        prompt: Option<String>,
+    },
 
     /// 检查并更新 Angles CLI
     Update,
@@ -97,7 +100,7 @@ pub fn print_help() {
     println!("  angles doctor    诊断安装和配置");
     println!("  angles history   查看历史会话");
     println!("  angles resume    恢复历史会话");
-    println!("  angles plan      显示/管理当前计划");
+    println!("  angles plan <p>  生成任务操作说明计划");
     println!("  angles update    检查并更新");
     println!();
     println!("  angles skill list    列出已安装的 Skill");

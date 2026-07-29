@@ -487,7 +487,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
 
         // Tool-call loop (max 20 iterations per user turn)
         for _ in 0..20 {
-            let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages).await?;
+            let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false).await?;
 
             // Update token usage
             daily_used += result.usage.completion_tokens;
@@ -551,7 +551,7 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
     // Tool-call loop (max 20 iterations)
     let mut final_content = String::new();
     for _ in 0..20 {
-        let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages).await?;
+        let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false).await?;
 
         if !result.content.is_empty() {
             final_content = result.content.clone();
@@ -590,6 +590,46 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
     Ok(final_content)
 }
 
+// ─── AI 操作说明生成（v0.4.0） ───
+
+const PLAN_SYSTEM_PROMPT: &str = r#"
+You are an operation planner for Angles Code CLI. Given the user's task, generate a concise list of high-level operation steps that the agent will perform. Each step must start with one of these verbs: 读取, 浏览网页, 安装, 创建, 编辑, 运行, 搜索, 提交. Keep each step under 12 Chinese words. End each step with "…". Output ONLY the list, one step per line, prefixed with "▸ ". Do not include explanations, markdown fences, or numbering.
+"#;
+
+pub fn generate_plan(cfg: Config, prompt: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let rt = tokio::runtime::Runtime::new()?;
+    rt.block_on(generate_plan_async(cfg, prompt))
+}
+
+async fn generate_plan_async(
+    cfg: Config,
+    prompt: &str,
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let api_key = resolve_api_key(&cfg);
+    let client = Client::new();
+    let messages = vec![Message {
+        role: "user".into(),
+        content: prompt.into(),
+        tool_calls: None,
+    }];
+    let result = stream_turn(&cfg, PLAN_SYSTEM_PROMPT, &api_key, &client, &messages, true).await?;
+
+    let lines: Vec<String> = result
+        .content
+        .lines()
+        .map(|l| l.trim())
+        .filter(|l| !l.is_empty())
+        .map(|l| {
+            l.trim_start_matches('▸')
+                .trim_start_matches('-')
+                .trim_start_matches('*')
+                .trim()
+                .to_string()
+        })
+        .collect();
+    Ok(lines)
+}
+
 // ─── Single streaming turn — dispatches by wire_api ───
 
 async fn stream_turn(
@@ -598,11 +638,12 @@ async fn stream_turn(
     api_key: &str,
     client: &Client,
     messages: &[Message],
+    quiet: bool,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     match cfg.wire_api.as_str() {
-        "chat" => stream_openai_chat(cfg, system, api_key, client, messages).await,
-        "anthropic" => stream_anthropic(cfg, system, api_key, client, messages).await,
-        "gemini" => stream_gemini(cfg, system, api_key, client, messages).await,
+        "chat" => stream_openai_chat(cfg, system, api_key, client, messages, quiet).await,
+        "anthropic" => stream_anthropic(cfg, system, api_key, client, messages, quiet).await,
+        "gemini" => stream_gemini(cfg, system, api_key, client, messages, quiet).await,
         _ => Err(format!("未知协议: {}", cfg.wire_api).into()),
     }
 }
@@ -610,7 +651,7 @@ async fn stream_turn(
 // ─── OpenAI Chat Completions streaming ───
 
 async fn stream_openai_chat(
-    cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message],
+    cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message], quiet: bool,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     let body = openai_chat::build_request_body(system, messages, &cfg.model, cfg.max_tokens);
     let url = openai_chat::build_url(&cfg.base_url);
@@ -632,7 +673,7 @@ async fn stream_openai_chat(
     let mut tool_calls: Vec<ToolCall> = Vec::new();
     let mut usage = TokenUsage::default();
 
-    print!("  ");
+    if !quiet { print!("  "); }
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         let text = String::from_utf8_lossy(&chunk);
@@ -644,8 +685,7 @@ async fn stream_openai_chat(
             if let Some(event) = openai_chat::parse_sse_chunk(data) {
                 if !event.content.is_empty() {
                     content.push_str(&event.content);
-                    print!("{}", event.content);
-                    io::stdout().flush().ok();
+                    if !quiet { print!("{}", event.content); io::stdout().flush().ok(); }
                 }
                 for tc in event.tool_calls {
                     let idx = tool_calls.len();
@@ -658,7 +698,7 @@ async fn stream_openai_chat(
             }
         }
     }
-    println!();
+    if !quiet { println!(); }
 
     // Merge tool calls by tracking partial deltas
     tool_calls = merge_tool_calls(tool_calls);
@@ -669,7 +709,7 @@ async fn stream_openai_chat(
 // ─── Anthropic Messages streaming ───
 
 async fn stream_anthropic(
-    cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message],
+    cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message], quiet: bool,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     let body = anthropic_messages::build_request_body(system, messages, &cfg.model, cfg.max_tokens);
     let url = anthropic_messages::build_url(&cfg.base_url);
@@ -695,7 +735,7 @@ async fn stream_anthropic(
     let mut current_tool_name = String::new();
     let mut current_tool_args = String::new();
 
-    print!("  ");
+    if !quiet { print!("  "); }
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         let text = String::from_utf8_lossy(&chunk);
@@ -706,8 +746,7 @@ async fn stream_anthropic(
             if let Some(event) = anthropic_messages::parse_sse_chunk(data) {
                 if !event.content.is_empty() {
                     content.push_str(&event.content);
-                    print!("{}", event.content);
-                    io::stdout().flush().ok();
+                    if !quiet { print!("{}", event.content); io::stdout().flush().ok(); }
                 }
                 for tc in event.tool_calls {
                     if !tc.id.is_empty() { current_tool_id = tc.id; }
@@ -719,7 +758,7 @@ async fn stream_anthropic(
             }
         }
     }
-    println!();
+    if !quiet { println!(); }
 
     // Finalize any pending tool call
     if !current_tool_name.is_empty() {
@@ -736,7 +775,7 @@ async fn stream_anthropic(
 // ─── Gemini Native streaming ───
 
 async fn stream_gemini(
-    cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message],
+    cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message], quiet: bool,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     let body = gemini_native::build_request_body(system, messages, &cfg.model, cfg.max_tokens);
     let url = gemini_native::build_url(&cfg.base_url, &cfg.model, api_key);
@@ -757,7 +796,7 @@ async fn stream_gemini(
     let mut tool_calls: Vec<ToolCall> = Vec::new();
     let mut usage = TokenUsage::default();
 
-    print!("  ");
+    if !quiet { print!("  "); }
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         let text = String::from_utf8_lossy(&chunk);
@@ -768,8 +807,7 @@ async fn stream_gemini(
             if let Some(event) = gemini_native::parse_sse_chunk(data) {
                 if !event.content.is_empty() {
                     content.push_str(&event.content);
-                    print!("{}", event.content);
-                    io::stdout().flush().ok();
+                    if !quiet { print!("{}", event.content); io::stdout().flush().ok(); }
                 }
                 tool_calls.extend(event.tool_calls);
                 usage.prompt_tokens += event.usage.prompt_tokens;
@@ -777,7 +815,7 @@ async fn stream_gemini(
             }
         }
     }
-    println!();
+    if !quiet { println!(); }
 
     Ok(ChatResult { content, tool_calls, usage })
 }

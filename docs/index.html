@@ -178,6 +178,11 @@ footer .credit{grid-column:1/-1;padding-top:48px;margin-top:32px;border-top:1px 
 
 @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 .rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+
+/* AI 操作说明生成动画 */
+.plan-line{opacity:0;transform:translateX(-10px);animation:planIn .45s cubic-bezier(.2,.7,.2,1) forwards;color:var(--muted)}
+@keyframes planIn{to{opacity:1;transform:none}}
+.plan-step{color:var(--red);margin-right:6px}
 .rise.d1{animation-delay:.1s}.rise.d2{animation-delay:.25s}.rise.d3{animation-delay:.4s}.rise.d4{animation-delay:.55s}
 @media (prefers-reduced-motion:reduce){.rise{animation:none}}
 </style>
@@ -206,36 +211,28 @@ footer .credit{grid-column:1/-1;padding-top:48px;margin-top:32px;border-top:1px 
 </nav>
 
 <section class="hero">
-  <div class="eyebrow rise">Open Source · MIT · 1.6 MB Rust Binary</div>
+  <div class="eyebrow rise">Open Source · MIT · v0.4.0 · 1.6 MB Rust Binary</div>
   <h1 class="rise d1">终端里的<br><span class="accent">AI 编程智能体</span></h1>
-  <p class="subtitle rise d2">一个 Rust 二进制，30 个内置工具，11 家模型供应商。不装 Node、不装运行时——5 秒装好，直接开干。</p>
+  <p class="subtitle rise d2">一个 Rust 二进制，30 个内置工具，11 家模型供应商。v0.4.0 新增 AI 操作说明：每趟任务开始前，先告诉你“读取… 安装… 创建… 运行…”，全程透明可控。</p>
   <div class="hero-cta rise d3">
     <a href="#install" class="btn btn-primary">安装 Angles →</a>
     <a href="docs.html" class="btn btn-ghost">阅读文档</a>
   </div>
 
-  <div class="win rise d4">
+  <div class="win rise d4" id="hero-terminal">
     <div class="win-bar">
       <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
       <span class="ttl">angles — zsh — 120×40</span>
     </div>
-    <div class="win-body">
-<div><span class="p">~/my-app</span> <span class="c">$</span> angles</div>
-<div class="c">  α  Angles Code CLI v0.3.2 · 11 models · 30 tools</div>
+    <div class="win-body" id="hero-win-body">
+<div><span class="p">~/my-app</span> <span class="c">$</span> angles <span class="mt">"给这个 Express 项目加 JWT 鉴权，写测试"</span></div>
+<div class="c">  α  Angles Code CLI v0.4.0 · 11 models · 30 tools</div>
 <div class="c">  ─────────────────────────────────────────────</div>
 <div>&nbsp;</div>
-<div><span class="b">You</span> &nbsp; 给这个 Express 项目加 JWT 鉴权，写测试</div>
+<div><span class="o">α</span> &nbsp; <span class="c" id="hero-status">正在生成操作说明...</span></div>
+<div id="hero-plan-lines"></div>
 <div>&nbsp;</div>
-<div><span class="o">α</span> &nbsp; <span class="c">正在规划...</span></div>
-<div class="c">  ▸ 读取 package.json 和 src/ 结构</div>
-<div class="c">  ▸ 安装 jsonwebtoken + bcryptjs</div>
-<div class="c">  ▸ 创建 src/middleware/auth.ts</div>
-<div class="c">  ▸ 创建 tests/auth.test.ts</div>
-<div>&nbsp;</div>
-<div><span class="o">α</span> &nbsp; <span class="g">✓ 完成 · 4 文件已修改 · 1 文件已创建</span></div>
-<div>&nbsp;</div>
-<div><span class="o">α</span> &nbsp; <span class="c">运行测试...</span></div>
-<div>&nbsp;&nbsp;<span class="g">✓ auth.test.ts</span> <span class="c">(8 passed)</span></div>
+<div id="hero-done" style="display:none"><span class="o">α</span> &nbsp; <span class="g">✓ 操作说明已生成 · 6 个步骤 · 预计 47s</span></div>
 <div>&nbsp;</div>
 <div><span class="p">~/my-app</span> <span class="c">$</span> <span class="cursor"></span></div>
     </div>
@@ -250,32 +247,29 @@ footer .credit{grid-column:1/-1;padding-top:48px;margin-top:32px;border-top:1px 
 <section class="section" id="agent">
   <div class="feature-row">
     <div class="text">
-      <div class="meta">智能体驱动开发</div>
-      <h2 style="margin-top:18px">让智能体把<br><span class="accent">创意变成代码</span></h2>
-      <p class="lead">把任务交给 Angles，加快开发速度——它会读你的代码库、规划步骤、改文件、跑测试、查日志。你只负责决策。</p>
-      <p class="lead">30 个内置工具覆盖文件系统、shell、搜索、git、HTTP——智能体需要什么就能用什么。</p>
-      <a href="tools.html" class="cta">查看全部 30 个工具 →</a>
+      <div class="meta">AI 操作说明 · v0.4.0</div>
+      <h2 style="margin-top:18px">先告诉你它在<br><span class="accent">干什么，再动手</span></h2>
+      <p class="lead">每条任务开始前，Angles 自动生成简短的操作说明：读取… 浏览网页… 安装… 创建… 编辑… 运行… 让你对 agent 的下一步一目了然。</p>
+      <p class="lead">你也可以用 <code class="mono">angles plan "你的任务"</code> 单独生成计划，先审阅再执行。透明、可控、不黑盒。</p>
+      <a href="docs.html" class="cta">了解操作说明机制 →</a>
     </div>
     <div class="mock">
       <div class="mock-bar">
         <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-        <span class="ttl">angles · plan</span>
+        <span class="ttl">angles plan "添加 OAuth 登录"</span>
       </div>
       <div class="mock-body">
-<div><span class="mt"># Plan: 添加 OAuth 登录流程</span></div>
+<div><span class="mt"># 操作说明：添加 OAuth 登录流程</span></div>
 <div>&nbsp;</div>
-<div><span class="bl">[1]</span> 读取 <span class="ok">src/routes/auth.ts</span></div>
-<div><span class="bl">[2]</span> 搜索现有 session 实现 <span class="mt">(grep -ri session)</span></div>
-<div><span class="bl">[3]</span> 写 <span class="ok">src/oauth/google.ts</span></div>
-<div><span class="bl">[4]</span> 改写 <span class="ok">src/routes/auth.ts</span> 加路由</div>
-<div><span class="bl">[5]</span> 运行 <span class="gd">npm test</span></div>
-<div><span class="bl">[6]</span> git commit <span class="mt">-m "feat: OAuth"</span></div>
+<div><span class="o">▸</span> 读取 <span class="ok">src/routes/auth.ts</span>…</div>
+<div><span class="o">▸</span> 浏览网页 <span class="ok">Google OAuth 文档</span>…</div>
+<div><span class="o">▸</span> 搜索 <span class="mt">现有 session 实现</span>…</div>
+<div><span class="o">▸</span> 创建 <span class="ok">src/oauth/google.ts</span>…</div>
+<div><span class="o">▸</span> 编辑 <span class="ok">src/routes/auth.ts</span> 加路由…</div>
+<div><span class="o">▸</span> 运行 <span class="gd">npm test</span>…</div>
+<div><span class="o">▸</span> 提交 <span class="mt">git commit -m "feat: OAuth"</span>…</div>
 <div>&nbsp;</div>
-<div><span class="mt">─── tools used ───</span></div>
-<div><span class="tag">read_file</span><span class="tag">grep</span><span class="tag">write_file</span></div>
-<div><span class="tag">run_shell</span><span class="tag">git_commit</span></div>
-<div>&nbsp;</div>
-<div><span class="ok">✓ 全部完成 · 47s · 6 工具调用</span></div>
+<div><span class="ok">✓ 操作说明已生成 · 7 个步骤 · 预计 52s</span></div>
       </div>
     </div>
   </div>
@@ -342,7 +336,7 @@ footer .credit{grid-column:1/-1;padding-top:48px;margin-top:32px;border-top:1px 
 <div><span class="ok">✓</span> Done in <span class="gd">4.8s</span></div>
 <div>&nbsp;</div>
 <div><span class="mt">$</span> angles --version</div>
-<div>angles 0.3.2 <span class="mt">(aarch64-apple-darwin)</span></div>
+<div>angles 0.4.0 <span class="mt">(aarch64-apple-darwin)</span></div>
       </div>
     </div>
   </div>
@@ -475,6 +469,42 @@ document.querySelectorAll('.feature-row,.manifesto,.stat-item,.section').forEach
   el.style.transition='opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1)';
   io.observe(el);
 });
+
+/* Hero terminal: AI-generated operation instructions */
+const heroPlan=[
+  {verb:'读取', target:'package.json 和 src/ 结构'},
+  {verb:'浏览网页', target:'jsonwebtoken 官方文档'},
+  {verb:'安装', target:'jsonwebtoken + bcryptjs'},
+  {verb:'创建', target:'src/middleware/auth.ts'},
+  {verb:'编辑', target:'src/routes/auth.ts 加鉴权路由'},
+  {verb:'运行', target:'npm test'}
+];
+function runHeroPlan(){
+  const container=document.getElementById('hero-plan-lines');
+  const status=document.getElementById('hero-status');
+  const done=document.getElementById('hero-done');
+  if(!container)return;
+  container.innerHTML='';
+  done.style.display='none';
+  status.innerHTML='正在生成操作说明...';
+  let i=0;
+  function next(){
+    if(i>=heroPlan.length){
+      status.innerHTML='<span class="g">生成完成</span>';
+      done.style.display='block';
+      setTimeout(runHeroPlan, 3600);
+      return;
+    }
+    const line=document.createElement('div');
+    line.className='plan-line';
+    line.innerHTML='<span class="c">  <span class="plan-step">▸</span> '+heroPlan[i].verb+' <span class="b">'+heroPlan[i].target+'</span>…</span>';
+    container.appendChild(line);
+    i++;
+    setTimeout(next, 780);
+  }
+  next();
+}
+setTimeout(runHeroPlan, 900);
 </script>
 </body>
 </html>

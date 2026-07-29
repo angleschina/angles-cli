@@ -19,7 +19,7 @@
 | `angles-exec <prompt>` | 非交互模式，执行单条指令后退出 |
 | `angles-history` | 查看历史会话列表 |
 | `angles-resume <id>` | 恢复指定历史会话 |
-| `angles-plan` | 显示/管理当前任务计划 |
+| `angles-plan <prompt>` | 生成当前任务的 AI 操作说明计划（v0.4.0+） |
 | `angles-update` | 检查并更新 Angles CLI |
 | `angles-doctor` | 诊断当前安装、配置、网络连通性 |
 
