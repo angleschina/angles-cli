@@ -593,7 +593,7 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
     Ok(final_content)
 }
 
-// ─── AI 操作说明生成（v0.4.0） ───
+// ─── AI 操作说明生成（v0.4.1） ───
 
 const PLAN_SYSTEM_PROMPT: &str = r#"
 You are an operation planner for Angles Code CLI. Given the user's task, generate a concise list of high-level operation steps that the agent will perform. Each step must start with one of these verbs: 读取, 浏览网页, 安装, 创建, 编辑, 运行, 搜索, 提交. Keep each step under 12 Chinese words. End each step with "…". Output ONLY the list, one step per line, prefixed with "▸ ". Do not include explanations, markdown fences, or numbering.

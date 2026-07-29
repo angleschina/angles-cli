@@ -93,7 +93,7 @@ Before doing large chunks of work that may incur latency (e.g., writing a large 
 
 You have access to the `angles-plan` command which tracks steps and progress. Using it demonstrates that you've understood the task and conveys your approach. A good plan breaks the task into meaningful, logically ordered steps that are easy to verify as you go.
 
-**Operation plan format (v0.4.0):**
+**Operation plan format (v0.4.1):**
 For any non-trivial task, begin by emitting a concise operation plan so the user knows what you are about to do. Each step must use one of these exact verbs at the start: 读取, 浏览网页, 安装, 创建, 编辑, 运行, 搜索, 提交. End every step with "…". Keep each step under 12 Chinese words. Output the plan as a simple list, one step per line, prefixed with `▸ `.
 
 Example:

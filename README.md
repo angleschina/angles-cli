@@ -28,10 +28,10 @@ npm i -g @angleschina/angles && angles install
 | 🤖 Providers | **11** (OpenAI / Claude / Gemini / DeepSeek / Grok / Qwen / GLM / Kimi …) |
 | 🖥️ Prebuilt platforms | **5** (Linux ARM64/x64 · macOS ARM64/x64 · Windows x64) |
 | ⚡ Runtime deps | **0** (pure Rust; no Node / no Python / static musl) |
-| 📝 AI 操作说明 | **v0.4.0+** 自动生成任务步骤，透明可控 |
+| 📝 AI 操作说明 | **v0.4.1+** 自动生成任务步骤，透明可控 |
 | 🔓 License | **MIT** |
 
-A terminal agentic coding assistant compiled into a single static Rust binary. No Node, no runtime, no compiler — install in one command and start coding. The agent drives 30+ `angles-*` tools to operate files, directories, terminal, Git, and web directly, switching between 11 model providers at will. v0.4.0 introduces AI-generated operation plans: before executing, Angles lists high-level steps like “read… install… create… edit… run…” so you always know what it’s doing. Config lives locally in `~/.angles/`; API keys never touch any relay server.
+A terminal agentic coding assistant compiled into a single static Rust binary. No Node, no runtime, no compiler — install in one command and start coding. The agent drives 30+ `angles-*` tools to operate files, directories, terminal, Git, and web directly, switching between 11 model providers at will. v0.4.1 introduces AI-generated operation plans: before executing, Angles lists high-level steps like “read… install… create… edit… run…” so you always know what it’s doing. Config lives locally in `~/.angles/`; API keys never touch any relay server.
 
 <hr width="50%">
 
@@ -48,7 +48,7 @@ A terminal agentic coding assistant compiled into a single static Rust binary. N
 | 🤖 模型供应商 | **11 家**（OpenAI / Claude / Gemini / DeepSeek / Grok / Qwen / GLM / Kimi …） |
 | 🖥️ 预编译平台 | **5 个**（Linux ARM64/x64 · macOS ARM64/x64 · Windows x64） |
 | ⚡ 运行时依赖 | **0**（纯 Rust，零 Node / 零 Python / 零 libc 动态链接 musl） |
-| 📝 AI 操作说明 | **v0.4.0+** 任务前先列步骤：读取… 安装… 创建… 编辑… 运行… |
+| 📝 AI 操作说明 | **v0.4.1+** 任务前先列步骤：读取… 安装… 创建… 编辑… 运行… |
 | 🔓 许可证 | **MIT** |
 
 </div>
@@ -118,7 +118,7 @@ angles
 # 非交互执行
 angles exec "写一个 Python HTTP 服务器"
 
-# 生成 AI 操作说明计划（v0.4.0+）
+# 生成 AI 操作说明计划（v0.4.1+）
 angles plan "给这个 Express 项目加 JWT 鉴权，写测试"
 
 # 启动本地 HTTP 网关 (v0.2+) — 浏览器开 http://127.0.0.1:8080
