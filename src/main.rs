@@ -10,6 +10,7 @@ mod skill;
 mod tools;
 
 use clap::Parser;
+use std::io::Write;
 
 fn main() {
     let args = cli::Cli::parse();
@@ -87,7 +88,7 @@ fn main() {
         Some(cli::Commands::Plan { prompt }) => {
             let cfg = config::load_or_default();
             let prompt = match prompt {
-                Some(p) => p,
+                Some(p) => p.clone(),
                 None => {
                     print!("请输入任务描述: ");
                     std::io::stdout().flush().ok();
