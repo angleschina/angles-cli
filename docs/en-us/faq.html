@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — Angles Code CLI</title>
+<link rel="canonical" href="https://zsj305.github.io/angles-cli/en-us/faq.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FAQ — Angles Code CLI">
+<meta property="og:description" content="Angles Code CLI FAQ: installation, configuration, models, tools, safety, development.">
+<meta property="og:url" content="https://zsj305.github.io/angles-cli/en-us/faq.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="FAQ — Angles Code CLI">
+<meta name="twitter:description" content="FAQ: Install, 配置, 模型, 安全, 贡献. ">
+<style>
+:root{
+  --bg:#0a0e1a; --bg-2:#0f1424; --card:#131a2e; --card-2:#172037;
+  --border:#1f2942; --border-2:#2a3656;
+  --text:#e6ebf5; --muted:#8a93b0; --muted-2:#6a7390;
+  --blue:#5ac8ff; --blue-bright:#82dcff; --blue-dim:rgba(90,200,255,.12);
+  --green:#00e5cc; --orange:#ffb020; --red:#e63946; --purple:#b388ff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--blue);text-decoration:none}
+code{background:var(--card-2);color:var(--blue-bright);padding:2px 7px;border-radius:5px;font-size:.85em;border:1px solid var(--border)}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:16px 5vw;background:rgba(10,14,26,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-size:1.2rem;font-weight:800;color:var(--blue)}
+.logo span{color:var(--text)}
+nav .links{display:flex;gap:24px;align-items:center}
+nav a{color:var(--muted);font-size:.92rem;transition:color .2s}
+nav a:hover{color:var(--text)}
+.btn{display:inline-block;padding:8px 18px;border-radius:8px;font-weight:600;font-size:.88rem;border:none;cursor:pointer}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+.layout{display:flex;max-width:1200px;margin:0 auto;padding:90px 5vw 60px;gap:40px}
+.side{position:sticky;top:90px;align-self:flex-start;width:200px;flex-shrink:0;font-size:.86rem}
+.side h4{color:var(--muted-2);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px;font-weight:700}
+.side a{display:block;color:var(--muted);padding:5px 0 5px 12px;border-left:2px solid transparent;transition:all .15s;line-height:1.4}
+.side a:hover{color:var(--blue);border-left-color:var(--blue)}
+.content{flex:1;min-width:0}
+
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--blue));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lead{color:var(--muted);font-size:1.05rem;margin-bottom:40px}
+
+h2{font-size:1.4rem;font-weight:700;margin:48px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border);scroll-margin-top:80px;color:var(--blue-bright)}
+h2:first-of-type{margin-top:0}
+
+.faq-list{display:flex;flex-direction:column;gap:10px}
+.faq{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.faq[open]{border-color:var(--blue)}
+.faq summary{padding:16px 20px;cursor:pointer;font-weight:600;font-size:.96rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';color:var(--blue);font-size:1.3rem;font-weight:300;transition:transform .2s}
+.faq[open] summary::after{transform:rotate(45deg)}
+.faq .ans{padding:0 20px 16px;color:var(--muted);font-size:.92rem;line-height:1.7}
+.faq .ans p{margin-bottom:10px}
+.faq .ans p:last-child{margin-bottom:0}
+.faq .ans ul{margin:6px 0 10px 20px}
+.faq .ans pre{background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:.84rem;overflow-x:auto;margin:10px 0}
+.faq .ans pre code{background:none;border:none;padding:0;color:var(--green)}
+
+footer{text-align:center;padding:50px 5vw 40px;border-top:1px solid var(--border);color:var(--muted);font-size:.9rem}
+footer .links{display:flex;gap:24px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+footer a{color:var(--muted)}footer a:hover{color:var(--blue)}
+.credit{margin-top:12px;font-size:.85rem}.credit span{color:var(--blue)}
+
+@media(max-width:860px){.side{display:none}.content{max-width:100%}}
+@media(max-width:600px){nav .links a:not(.btn){display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🅰 <span>Angles</span> <span style="color:var(--muted-2);font-weight:400">/ FAQ</span></div>
+  <div class="links">
+    <a href="../">Home</a>
+    <a href="docs.html">Docs</a>
+    <a href="tools.html">Tools</a>
+    <a href="https://github.com/ZSJ305/angles-cli" class="btn btn-ghost">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="side">
+  <h4>Categories</h4>
+  <a href="#install">Install</a>
+  <a href="#config">config</a>
+  <a href="#models">Models & Providers</a>
+  <a href="#tools">Tools & Usage</a>
+  <a href="#safety">Safety & Approval</a>
+  <a href="#trouble">Troubleshooting</a>
+  <a href="#dev">Development</a>
+</aside>
+
+<main class="content">
+<h1>FAQ</h1>
+<p class="lead">No answer here?<a href="https://github.com/ZSJ305/angles-cli/issues">Open an issue</a> </p>
+
+<h2 id="install">Install</h2>
+<div class="faq-list">
+<details class="faq"><summary>System requirements?</summary>
+<div class="ans"><p>Supports Linux (x64 / arm64 / armv7 / riscv64), macOS (Intel / Apple Silicon), Windows, WSL2, Alpine. Prebuilt binaries preferred; source compilation requires Rust ≥ 1.75(the installer handles Rust automatically). </p></div>
+</details>
+<details class="faq"><summary>Do I need root / admin?</summary>
+<div class="ans"><p>install.sh currently requires root(因为要装编译工具链). Windows install.ps1 needs admin for Build Tools.npm method(<code>npm i -g</code>)doesn't need root, but the system-level command still requires privileges at the <code>angles install</code> step.</p></div>
+</details>
+<details class="faq"><summary>Difference between the four install methods? Same binary?</summary>
+<div class="ans"><p>Identical — all produce <code>~/.local/bin/angles</code> Rust binary:</p><ul><li>npm: 打包了Install器, 跨平台, 国内走 npmmirror 镜像最快</li><li>curl / wget: pulls install.sh directly, best for Linux/macOS/WSL2 servers</li><li>PowerShell irm: native Windows first choice</li></ul></div>
+</details>
+<details class="faq"><summary>Install interrupted halfway?</summary>
+<div class="ans"><p>重Run同一条Install命令即可, Install器是幂等的: 已装的依赖会跳过, 不足的会补齐. config文件 <code>~/.angles/config.json</code> is never overwritten.</p></div>
+</details>
+<details class="faq"><summary>GitHub raw blocked / slow in China?</summary>
+<div class="ans"><p>Use npm method最稳(Default走 npmmirror). 或给_install.sh_ 换 GitHub 加速前缀, 例如: </p><pre><code>curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/ZSJ305/angles-cli/main/install.sh | bash</code></pre><p>Or set a proxy in terminal:<code>export https_proxy=http://127.0.0.1:7890</code></p></div>
+</details>
+</div>
+
+<h2 id="config">config</h2>
+<div class="faq-list">
+<details class="faq"><summary>Where is the config file?</summary>
+<div class="ans"><p><code>~/.angles/config.json</code>(Windows: <code>%USERPROFILE%\.angles\config.json</code>). Delete it to reset — next launch triggers the Gateway wizard.</p></div>
+</details>
+<details class="faq"><summary>Is my API key uploaded anywhere?</summary>
+<div class="ans"><p>No.Keys are stored locally in config.json, or via <code>ANGLES_API_KEY</code> env var.所有请求直接发往your configured provider, Angles 不经过任何中转或代理服务器. </p></div>
+</details>
+<details class="faq"><summary>怎么重新config(换模型 / 换语言)？</summary>
+<div class="ans"><p>Run <code>angles gateway</code> to re-enter the 5-step TUI wizard, change any field.Or edit config.json directly.view current config: <code>angles config</code>. </p></div>
+</details>
+<details class="faq"><summary>Approval policies: untrusted / on-request / never?</summary>
+<div class="ans"><p><code>untrusted</code>(default): auto-execute safe commands, ask before destructive ops.<code>on-request</code>: agent decides when to ask.<code>never</code>: auto-execute all — fastest but riskiest.<code>angles-deletefile</code>, <code>rm -rf</code>, <code>git push --force</code> always require confirmation regardless of policy.</p></div>
+</details>
+</div>
+
+<h2 id="models">Models & Providers</h2>
+<div class="faq-list">
+<details class="faq"><summary>Which providers are supported?</summary>
+<div class="ans"><p>OpenAI, Claude (Anthropic), Gemini (Google), DeepSeek, Grok (xAI), MiniMax, OpenRouter, 通义千问 Qwen, 智谱 GLM, Kimi (Moonshot), 自defs. The first 10 have preset base_url and default models; Custom lets you specify any endpoint.</p></div>
+</details>
+<details class="faq"><summary>Can I use local Ollama / vLLM / LM Studio?</summary>
+<div class="ans"><p>Yes. These local inference services provide OpenAI-compatible endpoints. Select "Custom" in Gateway:</p><ul><li>Base URL: <code>http://localhost:11434/v1</code>(Ollama)</li><li>API Key: anything (usually not validated locally)</li><li>Protocol: chat</li><li>Model: your model name, e.g. <code>llama3.1</code></li></ul></div>
+</details>
+<details class="faq"><summary>Claude and Gemini use different protocols — how?</summary>
+<div class="ans"><p>Angles 在 <code>api.rs</code> adapts three protocols: <code>chat</code>(OpenAI-compatible), <code>anthropic</code>(Messages API), <code>gemini</code>(原生 generateContent). selecting Claude / Gemini auto-sets wire_api, no manual config needed. </p></div>
+</details>
+<details class="faq"><summary>How to switch models without changing other settings?</summary>
+<div class="ans"><p>Edit config.json — change the <code>model</code> field to the new model ID. Other fields stay.或重新Run <code>angles gateway</code> and only change Step 3.</p></div>
+</details>
+</div>
+
+<h2 id="tools">Tools & Usage</h2>
+<div class="faq-list">
+<details class="faq"><summary>What are the 30+ tools?</summary>
+<div class="ans"><p>6 groups: 文件创建(4), 读取搜索(5), 修改删除(7), 目录项目(5), 终端执行(3), 网络搜索(2), Git(5). Full reference at <a href="tools.html">Tools page</a>, searchable and filterable by category.</p></div>
+</details>
+<details class="faq"><summary>Why prefer replace over writefile?</summary>
+<div class="ans"><p><code>angles-replace</code> is a precise diff — clear intent, minimal change;<code>writefile</code> overwrites the entire file, risking unrelated content.The system prompt explicitly requires the agent to prefer <code>replace</code> &gt; <code>writefile</code>. </p></div>
+</details>
+<details class="faq"><summary>How to make the agent run shell commands?</summary>
+<div class="ans"><p>The agent autonomously calls <code>angles-run</code>, 你可以直接让它"Run测试""起服务看一下日志"之类. Whether confirmation is needed depends on your approval policy.Background tasks use <code>angles-runbg</code>, (returns PID);<code>angles-kill</code> terminates.</p></div>
+</details>
+<details class="faq"><summary>Can it search the web?</summary>
+<div class="ans"><p>Yes.Gateway 第 5 步select a search engine:Bing / Baidu / Google / Yahoo / 自defs URL / 关闭. The agent calls <code>angles-websearch</code>, Bing is usually most stable.</p></div>
+</details>
+<details class="faq"><summary>Does it conflict with Codex CLI / Claude Code?</summary>
+<div class="ans"><p>No.Angles is an independent binary <code>angles</code>, config and sessions are in <code>~/.angles/</code>, no interference with other tools.You can run multiple agentic CLIs in different terminals.</p></div>
+</details>
+</div>
+
+<h2 id="safety">Safety & Approval</h2>
+<div class="faq-list">
+<details class="faq"><summary>Which operations always require confirmation?</summary>
+<div class="ans"><p>Regardless of approval policy, these always require confirmation:</p><ul><li><code>angles-deletefile</code> — permanent file deletion</li><li><code>angles-run</code> 配 <code>rm -rf</code> / <code>sudo</code> / <code>mkfs</code> / <code>dd</code> or similar destructive commands</li><li><code>angles-run git push --force</code></li><li>Any operation modifying files outside the workspace</li></ul></div>
+</details>
+<details class="faq"><summary>Can the agent delete files recklessly?</summary>
+<div class="ans"><p>Default <code>untrusted</code> policy: no — all writes require confirmation.Even in <code>never</code>, <code>deletefile</code> 和 <code>rm -rf</code> still force confirmation.系统提示also requires the agent not fix unrelated bugs or restructure files.</p></div>
+</details>
+<details class="faq"><summary>它会在我的项目目录外乱Run吗？</summary>
+<div class="ans"><p>Default作Use域是当前工作目录及其子树, 修改工作区外文件需要确认. AGENTS.md specs also make the agent respect repo-specific constraints.</p></div>
+</details>
+</div>
+
+<h2 id="trouble">Troubleshooting</h2>
+<div class="faq-list">
+<details class="faq"><summary>No response / network error?</summary>
+<div class="ans"><p>先Run <code>angles doctor</code> first:</p><ul><li>Check config.json completeness</li><li>Test connectivity to base_url</li><li>Verify API Key validity</li><li>Check if daily token budget is exhausted</li></ul><p>Common causes: expired API Key, wrong base_url, missing proxy, daily budget exhausted (resets next day).</p></div>
+</details>
+<details class="faq"><summary>Getting grep: unrecognized option -P?</summary>
+<div class="ans"><p>你大概率在 Alpine / BusyBox 上Run install.sh 的检测代码. BusyBox grep does not support PCRE(<code>-P</code>). This is a known issue in install.sh 内部对 Rust 版本号解析的已知兼容问题, 不影响实际功能 — Rust 版本检查会退化但does not block installation. </p></div>
+</details>
+<details class="faq"><summary>PowerShell execution policy error on Windows?</summary>
+<div class="ans"><p>Use <code>irm ... | iex</code> 形式(管道执行)可绕过执行策略; 或在管理员 PowerShell 里Run <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>. </p></div>
+</details>
+<details class="faq"><summary>Can't download prebuilt binary?</summary>
+<div class="ans"><p>The installer automatically falls back to source compilation: install Rust + <code>cargo build --release</code>. Takes a few minutes but guarantees success.You can also <code>ANGLES_REPO=... git clone</code> and build locally <code>cargo build --release</code> then copy manually.</p></div>
+</details>
+</div>
+
+<h2 id="dev">Development</h2>
+<div class="faq-list">
+<details class="faq"><summary>Build from source?</summary>
+<div class="ans"><pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+git clone https://github.com/ZSJ305/angles-cli.git
+cd angles-cli
+cargo build --release
+cp target/release/angles ~/.local/bin/</code></pre><p>交叉编译Use Makefile: <code>make setup-arm64 && make arm64</code>(Linux ARM64 静态二进制)等. </p></div>
+</details>
+<details class="faq"><summary>Project structure?</summary>
+<div class="ans"><p>9  Rust modules: <code>main.rs</code> entry, <code>cli.rs</code> Clap defs, <code>config.rs</code> config, <code>provider.rs</code> provider registry, <code>gateway.rs</code> TUI wizard, <code>instructions.rs</code> 系统提示template, <code>api.rs</code> API client + tool loop, <code>search.rs</code> search URL, <code>tools.rs</code> 30+ tools implementation. See <a href="docs.html">Docs</a>. </p></div>
+</details>
+<details class="faq"><summary>How to contribute / suggest?</summary>
+<div class="ans"><p>GPL-3.0 open source, <a href="https://github.com/ZSJ305/angles-cli">GitHub 仓库</a>welcomes issues and PRs. Early project, open direction. Especially welcome: new tool ideas, provider adapters, docs, bug reports.</p></div>
+</details>
+<details class="faq"><summary>Roadmap?</summary>
+<div class="ans"><p>v0.1 released(core CLI + 30 tools + 11 providers); v0.2 planned <code>update</code>/<code>uninstall</code> subcommands, session persistence; v0.3 shipped Skill system and docs site; v0.4.1 adds AI-generated operation plans (<code>angles plan</code>) and transparent execution steps; v1.0 target: stable API + complete docs site. See主页 <a href="https://zsj305.github.io/angles-cli/en-us/#roadmap">Roadmap</a>. </p></div>
+</details>
+</div>
+
+</main>
+</div>
+
+<footer>
+  <div class="links">
+    <a href="../">Home</a>
+    <a href="docs.html">Docs</a>
+    <a href="tools.html">Tools</a>
+    <a href="https://github.com/ZSJ305/angles-cli">GitHub</a>
+    <a href="https://www.npmjs.com/package/@angleschina/angles">npm</a>
+  </div>
+  <div class="credit">GPL-3.0 License · created by <span>ZSJ</span> 🇨🇳</div>
+</footer>
+
+</body>
+</html>

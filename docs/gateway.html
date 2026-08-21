@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angles Gateway — 控制台</title>
+<style>
+:root{
+  --bg:#000000; --bg-2:#0a0a0a; --card:#111111; --card-2:#1a1a1a;
+  --border:#222222; --border-2:#333333;
+  --text:#e0e0e0; --muted:#888888; --muted-2:#555555;
+  --red:#ff3333; --red-bright:#ff5555; --red-dim:rgba(255,51,51,.12);
+  --green:#33ff33; --orange:#ffaa33; --red:#ff3333; --purple:#9966ff;
+  --sidebar:#efeee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#000000; --bg-2:#0a0a0a; --card:#111111; --card-2:#26231a;
+    --border:#222222; --border-2:#3a3528;
+    --text:#e0e0e0; --muted:#8a8474; --muted-2:#6b6657;
+    --red:#ff3333; --red-bright:#ff5555; --red-dim:rgba(255,51,51,.12);
+    --green:#33ff33; --orange:#ffaa33; --red:#ff3333; --purple:#9966ff;
+    --sidebar:#1c1a12;
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;overflow:hidden}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+
+.app{display:grid;grid-template-columns:248px 1fr;grid-template-rows:56px 1fr;height:100vh;width:100vw}
+
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg);border-bottom:1px solid var(--border);z-index:20}
+.topbar .brand{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:1.25rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.topbar .brand .mark{font-family:ui-monospace,monospace;font-weight:700}
+.topbar .brand .slash{color:var(--muted);font-weight:400;font-size:.85rem}
+.topbar .right{display:flex;align-items:center;gap:14px;font-size:.82rem;color:var(--muted)}
+.topbar .right .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--card);border:1px solid var(--border);font-family:"JetBrains Mono",monospace;font-size:.72rem}
+.topbar .right .pill .dot{width:6px;height:6px;border-radius:50%}
+.topbar .right .pill .dot.online{background:var(--green)}
+.topbar .right .pill .dot.offline{background:var(--muted-2)}
+.topbar .right a{color:var(--muted)}
+.topbar .right a:hover{color:var(--text)}
+
+.sidebar{grid-row:2;background:var(--sidebar);border-right:1px solid var(--border);overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column}
+.nav-group{margin-bottom:18px}
+.nav-group h5{font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin:0 8px 6px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--muted);font-size:.88rem;cursor:pointer;transition:all .15s;user-select:none}
+.nav-item .ic{width:16px;text-align:center;font-size:.9rem;opacity:.85}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:var(--card);color:var(--text);font-weight:600;box-shadow:inset 2px 0 0 var(--text)}
+.sidebar-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);font-size:.76rem;color:var(--muted-2)}
+.sidebar-foot .ver{font-family:"JetBrains Mono",monospace}
+
+.main{grid-row:2;background:var(--bg);overflow-y:auto}
+.view{display:none;animation:fade .3s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.view-head{padding:28px 36px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:5}
+.view-head .eyebrow{font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px;font-weight:600}
+.view-head h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-size:1.9rem;font-weight:600;letter-spacing:-.02em}
+.view-head .sub{color:var(--muted);font-size:.92rem;margin-top:4px}
+.view-body{padding:28px 36px 60px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;font-weight:600}
+
+.kv{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:.86rem;gap:12px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--muted)}
+.kv .v{color:var(--text);font-family:"JetBrains Mono",monospace;text-align:right;word-break:break-all}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:"JetBrains Mono",monospace;font-size:.7rem;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.88rem;font-family:inherit;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--text)}
+.field textarea{resize:vertical;min-height:54px}
+.field .hint{font-size:.76rem;color:var(--muted-2);margin-top:5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-weight:600;font-size:.86rem;cursor:pointer;border:none;transition:opacity .15s;font-family:inherit}
+.btn-primary{background:var(--text);color:var(--bg)}
+.btn-primary:hover{opacity:.85}
+.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--text)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.chat-log{max-height:480px;overflow-y:auto;padding:6px 0;min-height:120px}
+.chat-msg{padding:11px 14px;margin-bottom:8px;border-radius:10px;font-size:.86rem;line-height:1.6}
+.chat-msg.user{background:var(--card-2);border:1px solid var(--border)}
+.chat-msg.bot{background:var(--red-dim);border:1px solid rgba(74,108,247,.18)}
+.chat-msg .who{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);margin-bottom:4px;font-weight:600}
+.chat-msg.bot .who{color:var(--red)}
+.chat-input{display:flex;gap:10px;margin-top:8px}
+.chat-input input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:.88rem}
+.chat-input input:focus{outline:none;border-color:var(--text)}
+.chat-input input:disabled{opacity:.5}
+
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.item-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color .2s;border-left:3px solid var(--red)}
+.item-card:hover{border-color:var(--text)}
+.item-card .name{font-family:"JetBrains Mono",monospace;font-size:.8rem;color:var(--red-bright);font-weight:600;margin-bottom:4px;word-break:break-all}
+.item-card .desc{font-size:.8rem;color:var(--muted);line-height:1.4}
+.item-card .cat{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--muted-2);margin-top:8px;letter-spacing:.04em}
+
+.token-bar{height:8px;background:var(--bg-2);border-radius:4px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--border)}
+.token-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--orange));border-radius:4px;transition:width .5s}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px}
+.toggle-row:last-of-type{border-bottom:none}
+.toggle-row .lbl{font-size:.88rem;font-weight:500}
+.toggle-row .dlbl{font-size:.78rem;color:var(--muted-2);margin-top:2px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 18px;border-radius:10px;font-size:.86rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
+.toast.show{opacity:1}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:var(--red)}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted-2)}
+.empty-state .big{font-size:2rem;margin-bottom:12px;opacity:.5}
+.empty-state .msg{font-size:.92rem;margin-bottom:8px}
+.empty-state code{background:var(--card-2);color:var(--red-bright);padding:2px 8px;border-radius:5px;border:1px solid var(--border);font-size:.85em}
+
+.mobile-ham{display:none}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none;position:fixed;top:56px;left:0;bottom:0;width:260px;z-index:30;box-shadow:2px 0 16px rgba(0,0,0,.12);transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{display:flex;transform:translateX(0)}
+  .mobile-ham{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-right:10px;cursor:pointer;font-size:1.1rem}
+  .form-grid{grid-template-columns:1fr}
+  .view-head,.view-body{padding-left:20px;padding-right:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center">
+      <div class="mobile-ham" onclick="document.querySelector('.sidebar').classList.toggle('open')">≡</div>
+      <div class="brand"><span class="mark">α</span><span>Angles</span><span class="slash">/ Gateway</span></div>
+    </div>
+    <div class="right">
+      <span class="pill" id="status-pill"><span class="dot offline" id="status-dot"></span> <span id="status-text">未连接</span></span>
+      <a href="index.html">← 主页</a>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="nav-group">
+      <h5>会话</h5>
+      <div class="nav-item active" data-view="chat"><span class="ic">💬</span> 对话</div>
+      <div class="nav-item" data-view="sessions"><span class="ic">📜</span> 会话历史</div>
+    </div>
+    <div class="nav-group">
+      <h5>能力</h5>
+      <div class="nav-item" data-view="tools"><span class="ic">🛠</span> 工具</div>
+      <div class="nav-item" data-view="config"><span class="ic">⚙️</span> 配置</div>
+      <div class="nav-item" data-view="tokens"><span class="ic">🎟️</span> Token</div>
+      <div class="nav-item" data-view="security"><span class="ic">🔒</span> 安全策略</div>
+    </div>
+    <div class="nav-group">
+      <h5>诊断</h5>
+      <div class="nav-item" data-view="diagnostics"><span class="ic">🩺</span> 诊断</div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="ver">angles v0.4.1</div>
+      <div style="margin-top:4px">本地网关</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- Chat -->
+    <section class="view active" id="view-chat">
+      <div class="view-head">
+        <div class="eyebrow">Session</div>
+        <h1>对话</h1>
+        <div class="sub">通过本地网关与智能体对话。</div>
+      </div>
+      <div class="view-body">
+        <div class="card">
+          <div class="card-title">实时对话</div>
+          <div class="chat-log" id="chat-log"></div>
+          <div class="chat-input">
+            <input id="chat-input" placeholder="输入消息，Enter 发送…" disabled onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="btn btn-primary" onclick="sendChat()" id="send-btn" disabled>发送</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sessions -->
+    <section class="view" id="view-sessions">
+      <div class="view-head">
+        <div class="eyebrow">Sessions</div>
+        <h1>会话历史</h1>
+        <div class="sub">持久化在 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px">~/.angles/sessions/</code></div>
+      </div>
+      <div class="view-body" id="sessions-body"></div>
+    </section>
+
+    <!-- Tools -->
+    <section class="view" id="view-tools">
+      <div class="view-head">
+        <div class="eyebrow">Tools</div>
+        <h1>工具</h1>
+        <div class="sub">从 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px">/api/tools</code> 实时获取。</div>
+      </div>
+      <div class="view-body" id="tools-body"></div>
+    </section>
+
+    <!-- Config -->
+    <section class="view" id="view-config">
+      <div class="view-head">
+        <div class="eyebrow">Configuration</div>
+        <h1>配置</h1>
+        <div class="sub">修改后点保存，通过 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px">PUT /api/config</code> 写入 config.json。</div>
+      </div>
+      <div class="view-body">
+        <div class="card">
+          <div class="card-title">当前配置（只读）</div>
+          <div id="config-readonly"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">修改配置</div>
+          <div class="form-grid">
+            <div class="field"><label>Provider</label><select id="cfg-provider" onchange="onProviderChange()"></select><div class="hint">切换会自动填充 base_url 和默认模型</div></div>
+            <div class="field"><label>模型 Model</label><input id="cfg-model" type="text" placeholder="model id"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>API Key</label><input id="cfg-apikey" type="password" placeholder="留空则保留现有 key"><div class="hint">直接发往 Provider，不经中转</div></div>
+            <div class="field"><label>Max Tokens</label><input id="cfg-maxtokens" type="number" value="16384" min="1024" step="1024"></div>
+          </div>
+          <div class="field"><label>语言</label><select id="cfg-lang"><option value="zh-CN">中文</option><option value="en">English</option></select></div>
+          <div class="field"><label>Agent 人设</label><textarea id="cfg-persona" rows="2"></textarea></div>
+          <div class="form-grid">
+            <div class="field"><label>搜索引擎</label><select id="cfg-search"><option value="bing">Bing</option><option value="baidu">Baidu</option><option value="google">Google</option><option value="yahoo">Yahoo</option><option value="disabled">关闭</option></select></div>
+            <div class="field"><label>审批策略</label><select id="cfg-approval"><option value="untrusted">untrusted</option><option value="on-request">on-request</option><option value="never">never</option></select></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+          <span style="margin-left:8px;color:var(--muted-2);font-size:.82rem">或终端运行 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">angles gateway</code></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tokens -->
+    <section class="view" id="view-tokens">
+      <div class="view-head">
+        <div class="eyebrow">Budget</div>
+        <h1>Token</h1>
+        <div class="sub">从 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px">/api/budget</code> 实时获取。</div>
+      </div>
+      <div class="view-body" id="tokens-body"></div>
+    </section>
+
+    <!-- Security -->
+    <section class="view" id="view-security">
+      <div class="view-head">
+        <div class="eyebrow">Safety</div>
+        <h1>安全策略</h1>
+        <div class="sub">审批策略决定哪些操作需要人工确认。</div>
+      </div>
+      <div class="view-body">
+        <div class="card">
+          <div class="card-title">审批策略</div>
+          <div class="kv"><span class="k">untrusted（默认）</span><span class="v" style="font-size:.78rem">只读自动执行，破坏性问用户</span></div>
+          <div class="kv"><span class="k">on-request</span><span class="v" style="font-size:.78rem">agent 自行判断何时请示</span></div>
+          <div class="kv"><span class="k">never</span><span class="v" style="font-size:.78rem">全部自动执行</span></div>
+          <div style="margin-top:14px;padding:12px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;font-size:.82rem;color:var(--muted);line-height:1.6">
+            无论哪种策略，以下操作始终强制确认：<br>
+            <code class="mono" style="color:var(--red)">angles-deletefile</code> ·
+            <code class="mono" style="color:var(--red)">rm -rf</code> ·
+            <code class="mono" style="color:var(--red)">git push --force</code> ·
+            修改工作区外文件。
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">API Key 存储</div>
+          <div class="kv"><span class="k">存储位置</span><span class="v">~/.angles/config.json (0600)</span></div>
+          <div class="kv"><span class="k">替代方案</span><span class="v">ANGLES_API_KEY 环境变量</span></div>
+          <div class="kv"><span class="k">是否上报</span><span class="v" style="color:var(--green)">不上报</span></div>
+          <div class="kv"><span class="k">请求路径</span><span class="v">直连 Provider</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagnostics -->
+    <section class="view" id="view-diagnostics">
+      <div class="view-head">
+        <div class="eyebrow">Health</div>
+        <h1>诊断</h1>
+        <div class="sub">从 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px">/api/diagnostics</code> 实时获取。</div>
+      </div>
+      <div class="view-body" id="diag-body"></div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var gatewayOnline=false;
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(type?' '+type:'');setTimeout(function(){t.className='toast'},2500);}
+
+async function api(path,opts){var r=await fetch(path,opts);return r.json();}
+
+/* ── View switching ── */
+document.querySelectorAll('.nav-item').forEach(function(item){
+  item.addEventListener('click',function(){
+    document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});
+    item.classList.add('active');
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+    document.getElementById('view-'+item.dataset.view).classList.add('active');
+    document.querySelector('.sidebar').classList.remove('open');
+    var v=item.dataset.view;
+    if(v==='sessions')loadSessions();
+    if(v==='tools')loadTools();
+    if(v==='config')loadConfigForm();
+    if(v==='tokens')loadBudget();
+    if(v==='diagnostics')loadDiag();
+  });
+});
+
+/* ── Health check ── */
+async function checkHealth(){
+  try{
+    var h=await api('/health');
+    gatewayOnline=true;
+    document.getElementById('status-dot').className='dot online';
+    document.getElementById('status-text').textContent=h.provider+' · '+h.model;
+    document.getElementById('chat-input').disabled=false;
+    document.getElementById('send-btn').disabled=false;
+  }catch(e){
+    gatewayOnline=false;
+    document.getElementById('status-dot').className='dot offline';
+    document.getElementById('status-text').textContent='未连接';
+  }
+}
+
+/* ── Chat ── */
+async function sendChat(){
+  if(!gatewayOnline)return;
+  var input=document.getElementById('chat-input');
+  var msg=input.value.trim();if(!msg)return;
+  input.value='';
+  var btn=document.getElementById('send-btn');
+  btn.disabled=true;btn.textContent='思考中…';
+  var log=document.getElementById('chat-log');
+  log.innerHTML+='<div class="chat-msg user"><div class="who">you</div>'+esc(msg)+'</div>';
+  log.scrollTop=log.scrollHeight;
+  try{
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+    var data=await r.json();
+    if(data.reply)log.innerHTML+='<div class="chat-msg bot"><div class="who">α angles</div>'+esc(data.reply)+'</div>';
+    else log.innerHTML+='<div class="chat-msg bot" style="background:rgba(196,56,48,.06)"><div class="who" style="color:var(--red)">error</div>'+esc(data.error||'未知错误')+'</div>';
+  }catch(e){
+    log.innerHTML+='<div class="chat-msg bot" style="background:rgba(196,56,48,.06)"><div class="who" style="color:var(--red)">error</div>'+esc(e.message)+'</div>';
+  }
+  log.scrollTop=log.scrollHeight;
+  btn.disabled=false;btn.textContent='发送';
+}
+
+/* ── Sessions (real /api/sessions) ── */
+async function loadSessions(){
+  var el=document.getElementById('sessions-body');
+  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  try{
+    var data=await api('/api/sessions');
+    if(data.count===0){el.innerHTML='<div class="empty-state"><div class="big">📜</div><div class="msg">暂无历史会话。<br>终端运行 <code>angles chat</code> 开始对话后会自动保存。</div></div>';return;}
+    el.innerHTML='<div class="item-grid">'+data.sessions.map(function(s){
+      var dt=s.modified_unix?new Date(s.modified_unix*1000).toLocaleString():'—';
+      return '<div class="item-card"><div class="name">'+esc(s.id)+'</div><div class="desc">'+(s.size_bytes/1024).toFixed(1)+' KB</div><div class="cat">'+esc(dt)+'</div></div>';
+    }).join('')+'</div>';
+  }catch(e){
+    el.innerHTML='<div class="empty-state"><div class="big">📜</div><div class="msg">网关未连接。<br>终端运行 <code>angles history</code> 查看。</div></div>';
+  }
+}
+
+/* ── Tools (real /api/tools) ── */
+async function loadTools(){
+  var el=document.getElementById('tools-body');
+  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  try{
+    var data=await api('/api/tools');
+    el.innerHTML='<div class="item-grid">'+data.tools.map(function(t){
+      var danger=t.dangerous?'border-left-color:var(--red)':'';
+      return '<div class="item-card" style="'+danger+'"><div class="name">'+esc(t.name)+(t.dangerous?' ⚠':'')+'</div><div class="desc">'+esc(t.description)+'</div><div class="cat">'+esc(t.category)+'</div></div>';
+    }).join('')+'</div>';
+  }catch(e){
+    el.innerHTML='<div class="empty-state"><div class="big">🛠</div><div class="msg">网关未连接。</div></div>';
+  }
+}
+
+/* ── Config (real /api/config + /api/providers) ── */
+async function loadConfigForm(){
+  try{
+    var cfg=await api('/api/config');
+    var provs=await api('/api/providers');
+    // readonly display
+    document.getElementById('config-readonly').innerHTML=
+      '<div class="kv"><span class="k">Provider</span><span class="v">'+esc(cfg.provider)+'</span></div>'+
+      '<div class="kv"><span class="k">Base URL</span><span class="v">'+esc(cfg.base_url)+'</span></div>'+
+      '<div class="kv"><span class="k">Model</span><span class="v">'+esc(cfg.model)+'</span></div>'+
+      '<div class="kv"><span class="k">协议</span><span class="v">'+esc(cfg.wire_api)+'</span></div>'+
+      '<div class="kv"><span class="k">API Key</span><span class="v">'+esc(cfg.api_key_masked||'(未设置)')+'</span></div>'+
+      '<div class="kv"><span class="k">Max Tokens</span><span class="v">'+cfg.max_tokens+'</span></div>'+
+      '<div class="kv"><span class="k">日预算</span><span class="v">'+cfg.daily_token_budget+'</span></div>'+
+      '<div class="kv"><span class="k">搜索引擎</span><span class="v">'+esc(cfg.search_engine)+'</span></div>'+
+      '<div class="kv"><span class="k">审批策略</span><span class="v">'+esc(cfg.approval_policy)+'</span></div>';
+    // form
+    var sel=document.getElementById('cfg-provider');
+    sel.innerHTML=provs.providers.map(function(p){return '<option value="'+p.id+'">'+p.name+'</option>';}).join('');
+    sel.value=cfg.provider;
+    document.getElementById('cfg-model').value=cfg.model;
+    document.getElementById('cfg-maxtokens').value=cfg.max_tokens;
+    document.getElementById('cfg-lang').value=cfg.language;
+    document.getElementById('cfg-persona').value=cfg.agent_persona;
+    document.getElementById('cfg-search').value=cfg.search_engine;
+    document.getElementById('cfg-approval').value=cfg.approval_policy;
+  }catch(e){
+    document.getElementById('config-readonly').innerHTML='<div class="empty-state"><div class="big">⚙️</div><div class="msg">网关未连接。<br>终端运行 <code>angles config</code> 查看，<code>angles gateway</code> 修改。</div></div>';
+  }
+}
+
+function onProviderChange(){
+  var sel=document.getElementById('cfg-provider');
+  if(!sel.value)return;
+  fetch('/api/providers').then(r=>r.json()).then(function(data){
+    var p=data.providers.find(function(x){return x.id===sel.value;});
+    if(p&&document.getElementById('cfg-model').value==='')document.getElementById('cfg-model').value=p.default_model;
+  });
+}
+
+async function saveConfig(){
+  var body={
+    provider:document.getElementById('cfg-provider').value,
+    model:document.getElementById('cfg-model').value,
+    max_tokens:+document.getElementById('cfg-maxtokens').value,
+    language:document.getElementById('cfg-lang').value,
+    agent_persona:document.getElementById('cfg-persona').value,
+    search_engine:document.getElementById('cfg-search').value,
+    approval_policy:document.getElementById('cfg-approval').value,
+  };
+  var key=document.getElementById('cfg-apikey').value;
+  if(key)body.api_key=key;
+  try{
+    var r=await fetch('/api/config',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var data=await r.json();
+    if(data.status==='saved'){toast('✅ 配置已保存','ok');document.getElementById('cfg-apikey').value='';loadConfigForm();checkHealth();}
+    else toast('❌ '+(data.error||'保存失败'),'err');
+  }catch(e){
+    toast('❌ 网关未连接','err');
+  }
+}
+
+/* ── Budget (real /api/budget) ── */
+async function loadBudget(){
+  var el=document.getElementById('tokens-body');
+  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  try{
+    var b=await api('/api/budget');
+    el.innerHTML=
+      '<div class="card"><div class="card-title">今日用量</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">'+
+        '<span class="mono" style="font-size:1.6rem;font-weight:600">'+b.daily_used.toLocaleString()+' <span style="color:var(--muted-2);font-size:.6em">/ '+b.daily_budget.toLocaleString()+'</span></span>'+
+        '<span class="mono" style="font-size:.78rem;color:var(--muted-2)">'+b.percent_used+'%</span>'+
+      '</div>'+
+      '<div class="token-bar"><div class="token-fill" style="width:'+b.percent_used+'%"></div></div>'+
+      '<div style="font-size:.82rem;color:var(--muted-2);margin-top:6px">剩余 '+b.remaining.toLocaleString()+' · 重置日期 '+esc(b.reset_date)+'</div></div>'+
+      '<div class="card"><div class="card-title">说明</div><p style="color:var(--muted);font-size:.86rem;line-height:1.6">每日 token 预算在 config.json 的 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">daily_token_budget</code> 字段中设置。超出后自动暂停对话，次日 00:00 重置。</p></div>';
+  }catch(e){
+    el.innerHTML='<div class="empty-state"><div class="big">🎟️</div><div class="msg">网关未连接。<br>预算在 config.json 的 <code>daily_token_budget</code> 中设置。</div></div>';
+  }
+}
+
+/* ── Diagnostics (real /api/diagnostics) ── */
+async function loadDiag(){
+  var el=document.getElementById('diag-body');
+  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  try{
+    var d=await api('/api/diagnostics');
+    function yn(ok){return ok?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>';}
+    el.innerHTML=
+      '<div class="card"><div class="card-title">体检结果</div>'+
+      '<div class="kv"><span class="k">angles 二进制</span><span class="v">'+yn(d.binary_installed)+' v'+d.version+'</span></div>'+
+      '<div class="kv"><span class="k">架构</span><span class="v">'+d.arch+' / '+d.os+'</span></div>'+
+      '<div class="kv"><span class="k">配置文件</span><span class="v">'+yn(d.config_exists)+' '+esc(d.config_path)+'</span></div>'+
+      '<div class="kv"><span class="k">API Key</span><span class="v">'+yn(d.api_key_configured)+'</span></div>'+
+      '<div class="kv"><span class="k">Provider</span><span class="v">'+esc(d.provider)+' · '+esc(d.model)+'</span></div>'+
+      '<div class="kv"><span class="k">网络连通</span><span class="v">'+yn(d.network_ok)+'</span></div>'+
+      '<div class="kv"><span class="k">Git</span><span class="v">'+yn(d.git_ok)+'</span></div>'+
+      '<div class="kv"><span class="k">ripgrep</span><span class="v">'+yn(d.ripgrep_ok)+'</span></div>'+
+      '</div>'+
+      '<div class="card"><div class="card-title">操作</div><p style="color:var(--muted);font-size:.86rem">终端运行 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">angles doctor</code> 获取完整诊断报告。</p></div>';
+  }catch(e){
+    el.innerHTML='<div class="empty-state"><div class="big">🩺</div><div class="msg">网关未连接。<br>终端运行 <code>angles doctor</code> 诊断。</div></div>';
+  }
+}
+
+/* ── Init ── */
+checkHealth();
+setInterval(checkHealth,10000);
+</script>
+</body>
+</html>

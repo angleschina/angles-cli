@@ -1,0 +1,16 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="v4-10bg" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#0c0c18"/><stop offset="0.6" stop-color="#06060e"/><stop offset="1" stop-color="#020208"/></radialGradient>
+<radialGradient id="v4-10glow" cx="0.5" cy="0.45" r="0.4">
+<stop offset="0" stop-color="#5ac8fa" stop-opacity="0.1"/><stop offset="0.3" stop-color="#bf5af2" stop-opacity="0.08"/><stop offset="0.6" stop-color="#ff375f" stop-opacity="0.06"/><stop offset="1" stop-color="#ff9500" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="v4-10t" x1="0.2" y1="0.05" x2="0.8" y2="0.95">
+<stop offset="0" stop-color="#a0e0ff"/><stop offset="0.2" stop-color="#5ac8fa"/><stop offset="0.4" stop-color="#5e5ce6"/><stop offset="0.6" stop-color="#bf5af2"/><stop offset="0.8" stop-color="#ff375f"/><stop offset="1" stop-color="#ff9500"/>
+</linearGradient>
+<filter id="v4-10f"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="1024" height="1024" rx="238" fill="url(#v4-10bg)"/>
+<rect width="1024" height="1024" rx="238" fill="url(#v4-10glow)"/>
+<text x="512" y="720" font-size="600" font-family="SF Pro Display,Helvetica,Arial,sans-serif" font-weight="800" fill="url(#v4-10t)" text-anchor="middle" filter="url(#v4-10f)" opacity="0.5">A</text>
+<text x="512" y="720" font-size="600" font-family="SF Pro Display,Helvetica,Arial,sans-serif" font-weight="800" fill="url(#v4-10t)" text-anchor="middle">A</text>
+</svg>
