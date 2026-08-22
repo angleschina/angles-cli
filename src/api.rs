@@ -448,6 +448,8 @@ pub fn exec_once(cfg: Config, prompt: &str) -> Result<String, Box<dyn std::error
 }
 
 async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>> {
+    use colored::Colorize;
+
     let system_prompt = instructions::render(&cfg);
     let api_key = resolve_api_key(&cfg);
     let client = Client::new();
@@ -455,13 +457,13 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
     let mut daily_used: u64 = 0;
 
     println!();
-    println!("  α  Angles Code CLI v{}", env!("CARGO_PKG_VERSION"));
-    println!("  Provider: {} | Model: {} | Protocol: {}", cfg.provider, cfg.model, cfg.wire_api);
-    println!("  输入消息开始对话，/quit 退出，/help 查看命令");
+    println!("  {}", "α  Angles Code CLI v{}".blue().bold(), env!("CARGO_PKG_VERSION"));
+    println!("  {}", format!("Provider: {} | Model: {} | Protocol: {}", cfg.provider, cfg.model, cfg.wire_api).cyan());
+    println!("  {}", "输入消息开始对话，/quit 退出，/help 查看命令".dimmed());
     println!();
 
     loop {
-        print!("  > ");
+        print!("  {}", "> ".green().bold());
         io::stdout().flush()?;
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
@@ -471,16 +473,16 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
         match input {
             "/quit" | "/exit" => break,
             "/help" => {
-                println!("  /quit, /exit  — 退出");
-                println!("  /help         — 显示帮助");
-                println!("  /config       — 显示配置");
-                println!("  /clear        — 清空对话");
-                println!("  /tokens       — 显示 token 用量");
+                println!("  {}", "/quit, /exit  — 退出".yellow().bold());
+                println!("  {}", "/help         — 显示帮助".yellow().bold());
+                println!("  {}", "/config       — 显示配置".yellow().bold());
+                println!("  {}", "/clear        — 清空对话".yellow().bold());
+                println!("  {}", "/tokens       — 显示 token 用量".yellow().bold());
                 continue;
             }
             "/config" => { crate::config::display(&cfg); continue; }
-            "/clear" => { messages.clear(); println!("  对话已清空"); continue; }
-            "/tokens" => { println!("  今日已用: {} / {} tokens", daily_used, cfg.daily_token_budget); continue; }
+            "/clear" => { messages.clear(); println!("  {}", "对话已清空".dimmed()); continue; }
+            "/tokens" => { println!("  {}", format!("今日已用: {} / {} tokens", daily_used, cfg.daily_token_budget).dimmed()); continue; }
             _ => {}
         }
 
@@ -495,7 +497,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
 
             // Show assistant content
             if !result.content.is_empty() {
-                println!("  {}", result.content);
+                println!("  {}", result.content.white());
             }
 
             // Add assistant message to history
@@ -512,7 +514,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
             // Execute tool calls
             for tc in &result.tool_calls {
                 let progress = tool_progress(&tc.name, &tc.arguments);
-                println!("  {}", progress);
+                println!("  {}", progress.yellow().bold());
 
                 let args: serde_json::Value = serde_json::from_str(&tc.arguments).unwrap_or(json!({}));
                 let tool_result = execute_tool(&tc.name, &args);
@@ -521,10 +523,10 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
                 for (i, line) in tool_result.lines().enumerate() {
                     if i >= 3 {
                         let total = tool_result.lines().count();
-                        if total > 3 { println!("  ... ({}行)", total); }
+                        if total > 3 { println!("  {}", format!("... ({}行)", total).dimmed()); }
                         break;
                     }
-                    println!("  {}", line);
+                    println!("  {}", line.cyan());
                 }
                 println!();
 
@@ -533,14 +535,14 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
 
             // Check daily budget
             if daily_used >= cfg.daily_token_budget {
-                println!("  每日 token 预算已用完 ({}/{})", daily_used, cfg.daily_token_budget);
+                println!("  {}", format!("每日 token 预算已用完 ({}/{})", daily_used, cfg.daily_token_budget).red().bold());
                 break;
             }
         }
     }
 
     println!();
-    println!("  再见!");
+    println!("  {}", "再见!".blue().bold());
     Ok(())
 }
 

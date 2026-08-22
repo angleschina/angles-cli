@@ -1,5 +1,4 @@
 mod api;
-mod banner;
 mod cli;
 mod config;
 mod gateway;
@@ -25,7 +24,6 @@ fn setup_console_utf8() {
 fn main() {
     #[cfg(windows)]
     setup_console_utf8();
-    banner::print();
     let args = cli::Cli::parse();
 
     match &args.command {
