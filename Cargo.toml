@@ -1,44 +1,13 @@
-[package]
-name = "angles-code-cli"
-version = "0.5.0"
-edition = "2021"
-description = "Angles Code CLI — Terminal-based agentic coding assistant"
-license = "GPL-3.0-only"
-
-[[bin]]
-name = "angles"
-path = "src/main.rs"
-
-[dependencies]
-clap = { version = "4", features = ["derive"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-toml = "0.8"
-reqwest = { version = "0.12", features = ["json", "stream", "rustls-tls"], default-features = false }
-tokio = { version = "1", features = ["full"] }
-axum = "0.7"
-tower-http = { version = "0.6", features = ["cors"] }
-ratatui = "0.29"
-crossterm = "0.28"
-futures = "0.3"
-handlebars = "6"
-chrono = "0.4"
-dirs = "5"
-which = "7"
-glob = "0.3"
-regex = "1"
-walkdir = "2"
-termimad = "0.31"
-minimad = "0.13"
-colored = "3"
-indicatif = "0.17"
-dialoguer = "0.11"
-console = "0.15"
-# Windows console UTF-8 support
-[target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_Console"] }
-
-[profile.release]
-opt-level = "s"
-lto = true
-strip = true
+## angles-cli v0.5.1 发布：Windows 终端 UTF-8 乱码修复 (2026-08-21)
+- **Bug**: Win 版 `angles.exe` 在 CMD/PowerShell 输出中文乱码
+- **根因**: Rust 二进制默认写 UTF-8, Windows 终端默认 OEM 编码(CP 437/936等), 不匹配
+- **修法**: 
+  - Cargo.toml: 新增 `windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_Console"] }`, 仅 windows cfg 编译
+  - src/main.rs: `#[cfg(windows)] fn setup_console_utf8()` 调用 `SetConsoleOutputCP(65001)` 强制 UTF-8
+- **发布**: GitHub tag v0.5.1 (commit 9fa3f27), Actions Release workflow 触发
+- **npm**: @angleschina/angles@0.5.1 (待发布, 需 npm config set + publish)
+- **关键操作** (沿用 v0.5.0 路径):
+  - push 走 ghfast.top 镜像: `git remote set-url origin "https://${GITHUB_TOKEN}@ghfast.top/https://github.com/ZSJ305/angles-cli.git"`
+  - tag 后还原 remote 为公开 URL
+  - npm publish 同 v0.5.0 配方
+- **Release workflow**: push tags v* 触发, 编 aarch64/x86_64 Linux/macOS + win x64
