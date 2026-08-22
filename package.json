@@ -1,6 +1,6 @@
 {
   "name": "@angleschina/angles",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Angles Code CLI — AI coding companion (installer + launcher, Rust-powered)",
   "bin": {
     "angles": "bin/angles.js"
