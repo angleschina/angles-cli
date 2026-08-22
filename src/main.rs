@@ -12,7 +12,18 @@ mod tools;
 use clap::Parser;
 use std::io::Write;
 
+// Windows: set console output to UTF-8 so Chinese/mixed text renders correctly
+#[cfg(windows)]
+fn setup_console_utf8() {
+    // SAFETY: called before any other thread may touch the console
+    unsafe {
+        let _ = windows_sys::Win32::System::Console::SetConsoleOutputCP(65001);
+    }
+}
+
 fn main() {
+    #[cfg(windows)]
+    setup_console_utf8();
     let args = cli::Cli::parse();
 
     match &args.command {

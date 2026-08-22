@@ -34,6 +34,9 @@ colored = "3"
 indicatif = "0.17"
 dialoguer = "0.11"
 console = "0.15"
+# Windows console UTF-8 support
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_Console"] }
 
 [profile.release]
 opt-level = "s"
