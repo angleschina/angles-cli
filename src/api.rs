@@ -457,7 +457,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
     let mut daily_used: u64 = 0;
 
     println!();
-    println!("  {}", "α  Angles Code CLI v{}".blue().bold(), env!("CARGO_PKG_VERSION"));
+    println!("  {}", format!("α  Angles Code CLI v{}", env!("CARGO_PKG_VERSION")).blue().bold());
     println!("  {}", format!("Provider: {} | Model: {} | Protocol: {}", cfg.provider, cfg.model, cfg.wire_api).cyan());
     println!("  {}", "输入消息开始对话，/quit 退出，/help 查看命令".dimmed());
     println!();
