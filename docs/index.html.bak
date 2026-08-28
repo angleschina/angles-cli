@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angles — 终端里的 AI 编程智能体</title>
 <meta name="description" content="专为在终端中构建雄心勃勃的软件而打造，Angles 是开源 AI 编程智能体。1.6MB Rust 二进制，30 工具，11 模型，5 平台。">
-<link rel="canonical" href="https://zsj305.github.io/angles-cli/">
+<link rel="canonical" href="https://angleschina.github.io/angles-cli/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Angles — 终端里的 AI 编程智能体">
 <meta property="og:description" content="开源 AI 编程智能体。1.6MB，30 工具，11 模型，5 平台。">
-<meta property="og:url" content="https://zsj305.github.io/angles-cli/">
+<meta property="og:url" content="https://angleschina.github.io/angles-cli/">
 <meta property="og:site_name" content="Angles Code CLI">
 <meta property="og:locale" content="zh_CN">
 
@@ -576,7 +576,7 @@ footer .credit{
       <button class="copy-btn">复制</button>
     </div>
     <div class="code-block" id="code-curl" style="display:none">
-      <div class="cmd"><span class="pr">$</span> curl -fsSL https://zsj305.github.io/angles-cli/install.sh | bash</div>
+      <div class="cmd"><span class="pr">$</span> curl -fsSL https://angleschina.github.io/angles-cli/install.sh | bash</div>
       <button class="copy-btn">复制</button>
     </div>
     <div class="code-block" id="code-brew" style="display:none">
@@ -584,7 +584,7 @@ footer .credit{
       <button class="copy-btn">复制</button>
     </div>
     <div class="code-block" id="code-win" style="display:none">
-      <div class="cmd"><span class="pr">PS&gt;</span> irm https://zsj305.github.io/angles-cli/install.ps1 | iex</div>
+      <div class="cmd"><span class="pr">PS&gt;</span> irm https://angleschina.github.io/angles-cli/install.ps1 | iex</div>
       <button class="copy-btn">复制</button>
     </div>
 
