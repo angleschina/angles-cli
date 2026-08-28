@@ -33,7 +33,7 @@
     "rust"
   ],
   "author": "ZSJ",
-  "license": "GPL-3.0-only",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ZSJ305/angles-cli.git"

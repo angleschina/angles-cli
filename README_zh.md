@@ -11,12 +11,12 @@
   <strong>简体中文</strong>
 </p>
 
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platforms](https://img.shields.io/badge/Platforms-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)](https://github.com/ZSJ305/angles-cli/releases)
 
 <a href="https://github.com/ZSJ305/angles-cli/releases"><img src="assets/github-badge.svg" alt="下载 · GitHub"></a>
 
-**30+ 内置工具 · 11 家模型供应商 · 5 平台预编译 · GPL-3.0 开源**
+**30+ 内置工具 · 11 家模型供应商 · 5 平台预编译 · MIT 开源**
 
 <p>
   <a href="https://zsj305.github.io/angles-cli/">官网</a> ·
@@ -42,7 +42,7 @@ Angles Code CLI 是一个终端原生的智能编码助手，编译为**单个�
 | 🤖 模型供应商 | **11 家**（OpenAI / Claude / Gemini / DeepSeek / Grok / Qwen / GLM / Kimi …） |
 | 🖥️ 预编译平台 | **5 个**（Linux ARM64/x64 · macOS ARM64/x64 · Windows x64） |
 | ⚡ 运行时依赖 | **0**（纯 Rust，零 Node / 零 Python / 零 libc 动态链接） |
-| 🔓 许可证 | **GPL-3.0** |
+| 🔓 许可证 | **MIT** |
 
 ---
 
@@ -274,4 +274,4 @@ make macos-arm64                 # macOS ARM64（仅 macOS）
 
 ## 许可证
 
-**GPL-3.0** —— 见 [LICENSE](LICENSE)。
+**MIT** —— 见 [LICENSE](LICENSE)。

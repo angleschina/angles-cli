@@ -11,12 +11,12 @@
   <a href="./README_zh.md">简体中文</a>
 </p>
 
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platforms](https://img.shields.io/badge/Platforms-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)](https://github.com/ZSJ305/angles-cli/releases)
 
 <a href="https://github.com/ZSJ305/angles-cli/releases"><img src="assets/github-badge.svg" alt="Download on GitHub"></a>
 
-**30+ built-in tools · 11 model providers · 5 platforms prebuilt · GPL-3.0**
+**30+ built-in tools · 11 model providers · 5 platforms prebuilt · MIT**
 
 <p>
   <a href="https://zsj305.github.io/angles-cli/">Website</a> ·
@@ -42,7 +42,7 @@ Angles Code CLI is a terminal-native agentic coding assistant compiled into a **
 | 🤖 Providers | **11** (OpenAI / Claude / Gemini / DeepSeek / Grok / Qwen / GLM / Kimi …) |
 | 🖥️ Prebuilt platforms | **5** (Linux ARM64/x64 · macOS ARM64/x64 · Windows x64) |
 | ⚡ Runtime dependencies | **0** (pure Rust, no Node / no Python / no libc dynamic linking) |
-| 🔓 License | **GPL-3.0** |
+| 🔓 License | **MIT** |
 
 ---
 
@@ -274,4 +274,4 @@ Prebuilt binaries for all 5 platforms are produced automatically by GitHub Actio
 
 ## License
 
-**GPL-3.0** — see [LICENSE](LICENSE).
+**MIT** — see [LICENSE](LICENSE).
