@@ -304,6 +304,7 @@ code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,mo
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/marked@14/marked.min.js" defer></script>
 <script>
 var gatewayOnline=false;
 
@@ -356,13 +357,60 @@ async function sendChat(){
   var log=document.getElementById('chat-log');
   log.innerHTML+='<div class="chat-msg user"><div class="who">you</div>'+esc(msg)+'</div>';
   log.scrollTop=log.scrollHeight;
+  // 新的流式对话气泡
+  var botMsg=document.createElement('div');
+  botMsg.className='chat-msg bot';
+  botMsg.innerHTML='<div class="who">α angles</div><div class="bot-body"></div>';
+  log.appendChild(botMsg);
+  var bodyEl=botMsg.querySelector('.bot-body');
+  var buffer='';
+  var html='';
   try{
-    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
-    var data=await r.json();
-    if(data.reply)log.innerHTML+='<div class="chat-msg bot"><div class="who">α angles</div>'+esc(data.reply)+'</div>';
-    else log.innerHTML+='<div class="chat-msg bot" style="background:rgba(196,56,48,.06)"><div class="who" style="color:var(--red)">error</div>'+esc(data.error||'未知错误')+'</div>';
+    var r=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:msg,source:'webui'})
+    });
+    if(!r.ok){
+      var errJson=await r.json().catch(function(){});
+      bodyEl.innerHTML='<span style="color:var(--red)">'+esc((errJson&&errJson.error)||('请求失败 '+r.status))+'</span>';
+    }else{
+      var reader=r.body.getReader();
+      var dec=new TextDecoder();
+      while(true){
+        var {done,value}=await reader.read();
+        if(done)break;
+        buffer+=dec.decode(value,{stream:true});
+        var lines=buffer.split('\n');
+        buffer=lines.pop();
+        for(var i=0;i<lines.length;i++){
+          var line=lines[i].trim();
+          if(!line)continue;
+          try{
+            var j=JSON.parse(line);
+            if(j.type==='chunk'&&j.text){
+              html += j.text;
+              bodyEl.innerHTML = typeof marked !== 'undefined' ? marked.parse(html) : esc(html);
+            }
+          }catch(e){/* skip malformed */}
+        }
+      }
+      // flush tail
+      if(buffer.trim()){
+        try{
+          var j=JSON.parse(buffer.trim());
+          if(j.type==='chunk'&&j.text){
+            html += j.text;
+            bodyEl.innerHTML = typeof marked !== 'undefined' ? marked.parse(html) : esc(html);
+          }
+        }catch(e){}
+      }
+      if(!bodyEl.innerHTML){
+        bodyEl.textContent='(空响应)';
+      }
+    }
   }catch(e){
-    log.innerHTML+='<div class="chat-msg bot" style="background:rgba(196,56,48,.06)"><div class="who" style="color:var(--red)">error</div>'+esc(e.message)+'</div>';
+    bodyEl.innerHTML='<span style="color:var(--red)">'+esc(e.message)+'</span>';
   }
   log.scrollTop=log.scrollHeight;
   btn.disabled=false;btn.textContent='发送';

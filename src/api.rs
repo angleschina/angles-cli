@@ -452,9 +452,17 @@ pub fn start_chat(cfg: Config) -> Result<(), Box<dyn std::error::Error>> {
     rt.block_on(start_chat_async(cfg))
 }
 
+pub async fn exec_once_stream(
+    cfg: Config,
+    prompt: &str,
+    tx: tokio::sync::mpsc::Sender<String>,
+) -> Result<String, Box<dyn std::error::Error>> {
+    exec_once_async(cfg, prompt, Some(&tx)).await
+}
+
 pub fn exec_once(cfg: Config, prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(exec_once_async(cfg, prompt))
+    rt.block_on(exec_once_async(cfg, prompt, None))
 }
 
 async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>> {
@@ -500,7 +508,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
 
         // Tool-call loop (max 20 iterations per user turn)
         for _ in 0..20 {
-            let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false).await?;
+            let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false, None).await?;
 
             // Update token usage
             daily_used += result.usage.completion_tokens;
@@ -556,7 +564,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn exec_once_async(cfg: Config, prompt: &str, chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>) -> Result<String, Box<dyn std::error::Error>> {
     let system_prompt = instructions::render(&cfg);
     let api_key = resolve_api_key(&cfg);
     let client = Client::new();
@@ -565,7 +573,7 @@ async fn exec_once_async(cfg: Config, prompt: &str) -> Result<String, Box<dyn st
     // Tool-call loop (max 20 iterations)
     let mut final_content = String::new();
     for _ in 0..20 {
-        let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false).await?;
+        let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false, chunk_tx).await?;
 
         if !result.content.is_empty() {
             final_content = result.content.clone();
@@ -628,7 +636,7 @@ async fn generate_plan_async(
         tool_calls: None,
         tool_call_id: None,
     }];
-    let result = stream_turn(&cfg, PLAN_SYSTEM_PROMPT, &api_key, &client, &messages, true).await?;
+    let result = stream_turn(&cfg, PLAN_SYSTEM_PROMPT, &api_key, &client, &messages, true, None).await?;
 
     let lines: Vec<String> = result
         .content
@@ -655,11 +663,12 @@ async fn stream_turn(
     client: &Client,
     messages: &[Message],
     quiet: bool,
+    chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     match cfg.wire_api.as_str() {
-        "chat" => stream_openai_chat(cfg, system, api_key, client, messages, quiet).await,
-        "anthropic" => stream_anthropic(cfg, system, api_key, client, messages, quiet).await,
-        "gemini" => stream_gemini(cfg, system, api_key, client, messages, quiet).await,
+        "chat" => stream_openai_chat(cfg, system, api_key, client, messages, quiet, chunk_tx).await,
+        "anthropic" => stream_anthropic(cfg, system, api_key, client, messages, quiet, chunk_tx).await,
+        "gemini" => stream_gemini(cfg, system, api_key, client, messages, quiet, chunk_tx).await,
         _ => Err(format!("未知协议: {}", cfg.wire_api).into()),
     }
 }
@@ -668,6 +677,7 @@ async fn stream_turn(
 
 async fn stream_openai_chat(
     cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message], quiet: bool,
+    chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     let body = openai_chat::build_request_body(system, messages, &cfg.model, cfg.max_tokens);
     let url = openai_chat::build_url(&cfg.base_url);
@@ -701,6 +711,7 @@ async fn stream_openai_chat(
             if let Some(event) = openai_chat::parse_sse_chunk(data) {
                 if !event.content.is_empty() {
                     content.push_str(&event.content);
+                    if let Some(tx) = chunk_tx { let _ = tx.try_send(event.content.clone()); }
                     if !quiet { print!("{}", event.content); io::stdout().flush().ok(); }
                 }
                 for tc in event.tool_calls {
@@ -720,6 +731,7 @@ async fn stream_openai_chat(
 
 async fn stream_anthropic(
     cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message], quiet: bool,
+    chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     let body = anthropic_messages::build_request_body(system, messages, &cfg.model, cfg.max_tokens);
     let url = anthropic_messages::build_url(&cfg.base_url);
@@ -756,6 +768,7 @@ async fn stream_anthropic(
             if let Some(event) = anthropic_messages::parse_sse_chunk(data) {
                 if !event.content.is_empty() {
                     content.push_str(&event.content);
+                    if let Some(tx) = chunk_tx { let _ = tx.try_send(event.content.clone()); }
                     if !quiet { print!("{}", event.content); io::stdout().flush().ok(); }
                 }
                 for tc in event.tool_calls {
@@ -786,6 +799,7 @@ async fn stream_anthropic(
 
 async fn stream_gemini(
     cfg: &Config, system: &str, api_key: &str, client: &Client, messages: &[Message], quiet: bool,
+    chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>,
 ) -> Result<ChatResult, Box<dyn std::error::Error>> {
     let body = gemini_native::build_request_body(system, messages, &cfg.model, cfg.max_tokens);
     let url = gemini_native::build_url(&cfg.base_url, &cfg.model, api_key);
@@ -817,6 +831,7 @@ async fn stream_gemini(
             if let Some(event) = gemini_native::parse_sse_chunk(data) {
                 if !event.content.is_empty() {
                     content.push_str(&event.content);
+                    if let Some(tx) = chunk_tx { let _ = tx.try_send(event.content.clone()); }
                     if !quiet { print!("{}", event.content); io::stdout().flush().ok(); }
                 }
                 tool_calls.extend(event.tool_calls);

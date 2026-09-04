@@ -150,27 +150,67 @@ async fn list_providers() -> impl IntoResponse {
 #[derive(serde::Deserialize)]
 struct ChatRequest {
     message: String,
+    #[serde(default = "default_source")]
+    source: String,
 }
 
-async fn chat(Json(req): Json<ChatRequest>) -> impl IntoResponse {
+fn default_source() -> String {
+    "webui".into()
+}
+
+async fn chat(Json(req): Json<ChatRequest>) -> axum::response::Response {
     let cfg = config::load_or_default();
+    use axum::response::IntoResponse as _;
 
     if cfg.api_key.is_empty() && std::env::var("ANGLES_API_KEY").is_err() {
         return (
             StatusCode::BAD_REQUEST,
+            [
+                (axum::http::header::CONTENT_TYPE, "application/json; charset=utf-8"),
+            ],
             Json(serde_json::json!({"error": "API Key 未配置，请先运行 angles gateway 或通过 API 设置"})),
-        );
+        )
+            .into_response();
     }
 
-    // Run the exec in a blocking task to avoid blocking the async runtime
-    match tokio::task::spawn_blocking(move || {
-        crate::api::exec_once(cfg, &req.message)
-            .map_err(|e| e.to_string())
-    }).await {
-        Ok(Ok(msg)) => (StatusCode::OK, Json(serde_json::json!({"reply": msg}))),
-        Ok(Err(e)) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({"error": e.to_string()}))),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({"error": format!("Task failed: {}", e)}))),
-    }
+    // WebUI 请求：给 LLM 加上下文标记，引导其按 Markdown 格式实时输出
+    let enriched_message = if req.source == "webui" {
+        format!("[WebUI 请求] {}\n\n请严格按照 Markdown 格式回复，我会实时在 Web 页面上渲染你的输出。", req.message)
+    } else {
+        req.message
+    };
+
+    // 后台执行，每收到一个增量就写入 channel；channel 关闭(exec 结束)时流终止
+    let (tx, rx) = tokio::sync::mpsc::channel::<String>(64);
+    tokio::task::spawn(async move {
+        let _ = crate::api::exec_once_stream(cfg, &enriched_message, tx).await;
+    });
+
+    use axum::body::Body;
+    use axum::http::header::{CACHE_CONTROL, CONTENT_TYPE};
+    use axum::http::Response;
+    use futures::stream::StreamExt as _;
+
+    let body_stream = futures::stream::unfold(rx, |mut rx| async move {
+        match rx.recv().await {
+            Some(chunk) => {
+                let line = serde_json::json!({"type":"chunk","text": chunk}).to_string();
+                let ok: Result<axum::body::Bytes, Box<dyn std::error::Error + Send + Sync>> =
+                    Ok(axum::body::Bytes::from(line));
+                Some((ok, rx))
+            }
+            None => None,
+        }
+    });
+
+    return Response::builder()
+        .status(StatusCode::OK)
+        .header(CONTENT_TYPE, "application/x-ndjson; charset=utf-8")
+        .header(CACHE_CONTROL, "no-cache")
+        .header("Accept-Encoding", "identity")
+        .body(Body::from_stream(body_stream))
+        .unwrap()
+        .into_response();
 }
 
 // ─── Tools list (static, from source) ───

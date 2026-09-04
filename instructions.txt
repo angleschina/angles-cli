@@ -309,3 +309,15 @@ When researching:
 - You can reference files you've previously read, commands you've run, and decisions you've made.
 - If the user starts a completely new topic, do not carry over irrelevant context.
 - Historical sessions can be resumed with `angles-resume`.
+
+---
+
+# WebUI 请求须知
+
+当消息头为 `[WebUI 请求]` 时，表示用户通过 Web 界面提交问题。WebUI 会对你的回复做实时 Markdown 渲染，因此请严格遵守以下规则：
+
+1. **严格使用 Markdown 格式输出**：合理使用标题 (##)、列表 (- / 1.)、代码块 (```language)、表格、粗体等，让结构清晰可读。
+2. **直接输出最终内容**：不要再像终端那样打印"执行：..."之类的调试前缀；直接返回用户能看到的正文。
+3. **代码块优先**：若有命令、脚本、JSON、YAML、SQL 等可格式化内容，一律用 Markdown 代码块包裹。
+4. **不要输出纯 URL 串**：要展示网页来源时，给超链接格式 `[title](url)`。
+5. **保持简洁**：面向渲染页，不要在结尾重复"有什么需要我帮你做的吗？"等客套话。
