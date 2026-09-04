@@ -69,7 +69,8 @@ pub fn tool_definitions() -> Vec<serde_json::Value> {
         json!({"type":"function","function":{"name":"angles-runbg","description":"Execute a command in background, returns PID.","parameters":{"type":"object","properties":{"command":{"type":"string","description":"Shell command to run"}},"required":["command"]}}}),
         json!({"type":"function","function":{"name":"angles-kill","description":"Kill a process by PID.","parameters":{"type":"object","properties":{"pid":{"type":"integer","description":"Process ID"}},"required":["pid"]}}}),
         json!({"type":"function","function":{"name":"angles-fetch","description":"Download a URL to a file.","parameters":{"type":"object","properties":{"url":{"type":"string","description":"URL to download"},"output":{"type":"string","description":"Output file path"}},"required":["url","output"]}}}),
-        json!({"type":"function","function":{"name":"angles-websearch","description":"Perform a web search using the configured search engine.","parameters":{"type":"object","properties":{"query":{"type":"string","description":"Search query"}},"required":["query"]}}}),
+        json!({"type":"function","function":{"name":"angles-websearch","description":"Search the web. Returns a readable summary of top results (real content fetched from the engine page). Use angles-fetchpage on any result URL to read the full page.","parameters":{"type":"object","properties":{"query":{"type":"string","description":"Search query"}},"required":["query"]}}}),
+        json!({"type":"function","function":{"name":"angles-fetchpage","description":"Fetch a URL and return its readable text content (what a user sees in a browser) — strips all HTML tags, scripts, styles and CSS noise. Use after angles-websearch to read a full page.","parameters":{"type":"object","properties":{"url":{"type":"string","description":"URL of the page to fetch"},"max_chars":{"type":"integer","description":"Optional max characters to return (default 8000)"}},"required":["url"]}}}),
         json!({"type":"function","function":{"name":"angles-gitinit","description":"Initialize a git repository.","parameters":{"type":"object","properties":{"dir":{"type":"string","description":"Directory path (default: current)"}}}}}),
         json!({"type":"function","function":{"name":"angles-gitcommit","description":"Stage all changes and commit.","parameters":{"type":"object","properties":{"msg":{"type":"string","description":"Commit message"}},"required":["msg"]}}}),
         json!({"type":"function","function":{"name":"angles-gitlog","description":"Show recent git commits.","parameters":{"type":"object","properties":{"n":{"type":"integer","description":"Number of commits (default 10)"}}}}}),
@@ -110,7 +111,16 @@ pub fn execute_tool(name: &str, args: &serde_json::Value) -> String {
         "angles-websearch" => {
             let query = args["query"].as_str().unwrap_or("");
             let url = search::search_url_from_cfg(query);
-            format!("搜索: {}", url)
+            // v0.6: 真正抓取搜索页返回可读结果摘要，而不是像 0.5 只返回一个打不开的 URL 字符串
+            match tools::angles_websearch_fetch(&url) {
+                Ok(text) => text,
+                Err(e) => format!("websearch 失败: {}\n（可改用 angles-fetchpage 直接打开已知链接）", e),
+            }
+        }
+        "angles-fetchpage" => {
+            let url = args["url"].as_str().unwrap_or("");
+            let max = args["max_chars"].as_u64().unwrap_or(0) as usize;
+            tools::angles_fetchpage(url, max).unwrap_or_else(|e| format!("fetchpage 失败: {}", e))
         }
         "angles-gitinit" => tools::angles_gitinit(args["dir"].as_str().unwrap_or("")).unwrap_or_else(|e| format!("{}", e)),
         "angles-gitcommit" => tools::angles_gitcommit(args["msg"].as_str().unwrap_or("")).unwrap_or_else(|e| format!("{}", e)),

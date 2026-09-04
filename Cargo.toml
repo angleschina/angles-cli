@@ -1,6 +1,6 @@
 [package]
+version = "0.6.0"
 name = "angles-code-cli"
-version = "0.5.4"
 edition = "2021"
 description = "Angles Code CLI — Terminal-based agentic coding assistant"
 license = "MIT"

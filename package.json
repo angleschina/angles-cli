@@ -1,6 +1,6 @@
 {
   "name": "@angleschina/angles",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "description": "Angles Code CLI — AI coding companion (installer + launcher, Rust-powered)",
   "bin": {
     "angles": "bin/angles.js"
@@ -36,10 +36,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ZSJ305/angles-cli.git"
+    "url": "git+https://github.com/angleschina/angles-cli.git"
   },
-  "homepage": "https://github.com/ZSJ305/angles-cli#readme",
+  "homepage": "https://github.com/angleschina/angles-cli#readme",
   "bugs": {
-    "url": "https://github.com/ZSJ305/angles-cli/issues"
+    "url": "https://github.com/angleschina/angles-cli/issues"
   }
 }

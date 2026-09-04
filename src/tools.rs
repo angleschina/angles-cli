@@ -408,3 +408,198 @@ pub fn angles_gitbranch(name: &str) -> Result<String, String> {
         .map_err(|e| format!("git branch 失败: {}", e))?;
     Ok(format!("已创建并切换到分支: {}", name))
 }
+
+// ─── v0.6.0: 真正的网页搜索与可读文本拉取 ───
+
+/// 抓取一个 URL 的原始 HTML（同步，走系统 curl）。失败返回 Err。
+fn curl_html(url: &str) -> Result<String, String> {
+    let out = Command::new("curl")
+        .args([
+            "-fsSL", "--max-time", "20",
+            "-A", "Mozilla/5.0 (compatible; angles-cli/0.6)",
+            "-L", url,
+        ])
+        .output()
+        .map_err(|e| format!("网络请求失败: {}", e))?;
+    if !out.status.success() {
+        return Err(format!("无法获取 {}: HTTP {}", url, out.status));
+    }
+    Ok(String::from_utf8_lossy(&out.stdout).to_string())
+}
+
+/// 把 HTML 转成"浏览器看到的可读文本"：
+/// 去掉脚本/样式/注释/标签，只留正文文本，折叠多余空白。
+/// 不做 CSS 渲染，因此不会出现 px、font-size 等样式噪音。
+/// 把一段 HTML 剥成"读者在浏览器里看到的正文文本"：
+/// 去掉 <script>/<style>/注释/所有标签，解码常用实体，折叠空白。
+/// 因为直接把样式块和标签文本丢弃，返回里不会出现 px、font-size 这类 CSS 噪音。
+///
+/// 说明：<script> 内可能有字面 '<'，出现时保留的很少且不影响正文理解。
+pub fn html_to_readable(html: &str) -> String {
+    let mut s = html.to_string();
+
+    // 1) 去注释 <-- ... -->
+    strip_comment(&mut s);
+
+    // 2) 反复剥离噪声整块：这些块内文字不是正文（script=JS，style=CSS，其余辅助），
+    //    且 CSS/JS 文本里很少含 '<'，不干净时残留量小。循环直到不再变化。
+    for tag in ["script", "style", "noscript", "template", "head", "iframe"] {
+        strip_noise_block(&mut s, tag);
+    }
+
+    // 3) 逐字符删掉剩余全部标签，同时为块级结束标签补个换行，为单元格分隔加 ' | '。
+    let mut out = String::with_capacity(s.len());
+    let mut chars = s.chars().peekable();
+    let mut in_tag = false;
+    let mut tag_lower = String::new();
+    while let Some(c) = chars.next() {
+        if in_tag {
+            if c == '>' {
+                in_tag = false;
+                // 根据闭合标签名决定补什么节奏
+                let t = tag_lower.trim();
+                if t.starts_with('/') {
+                    let name = t[1..].split(|ch: char| ch == ' ' || ch == '\t').next().unwrap_or("").to_lowercase();
+                    match name.as_str() {
+                        "p"|"div"|"li"|"tr"|"section"|"article"|"header"|"footer"|"main"
+                        |"ul"|"ol"|"blockquote"|"pre"|"table"|"h1"|"h2"|"h3"|"h4"|"h5"|"h6"
+                            => out.push('\n'),
+                        "td"|"th" => out.push_str(" | "),
+                        _ => out.push(' '),
+                    }
+                } else if t.starts_with("br") {
+                    out.push('\n');
+                } else {
+                    out.push(' ');
+                }
+                tag_lower.clear();
+            } else {
+                tag_lower.push(c.to_ascii_lowercase());
+            }
+        } else if c == '<' {
+            in_tag = true;
+            tag_lower.clear();
+        } else {
+            out.push(c);
+        }
+    }
+    s = out;
+
+    // 4) 解码常用 HTML 实体
+    decode_entities(&mut s);
+
+    // 5) 折叠空白，逐行清洗
+    let mut lines: Vec<String> = Vec::new();
+    for raw in s.lines() {
+        let coll: String = raw.split_whitespace().collect::<Vec<_>>().join(" ");
+        let t = coll.trim();
+        if !t.is_empty() { lines.push(t.to_string()); }
+    }
+    lines.join("\n")
+}
+
+/// 去掉 HTML 注释（幂等）
+fn strip_comment(s: &mut String) {
+    loop {
+        match (s.find("<!--"), s.find("-->")) {
+            (Some(a), Some(b)) if b > a => {
+                let mut n = String::new();
+                n.push_str(&s[..a]);
+                n.push_str(&s[b + 3..]);
+                *s = n;
+            }
+            _ => break,
+        }
+    }
+}
+
+/// 去掉单个噪声标签成对的整块内容（保留闭合标签无关紧要，直接全删）。
+/// 用 lower-case 比较，一次删一对。
+fn strip_noise_block(s: &mut String, tag: &str) {
+    let open = format!("<{}", tag);
+    let close = format!("</{}>", tag);
+    let mut guard = 0usize;
+    loop {
+        guard += 1;
+        if guard > 10_000 { break; }
+        let lower = s.to_lowercase();
+        let Some(start) = lower.find(&open) else { break; };
+        // 跳过闭合标签形态 —— 但不是开标签(前字符 '?' 或 '/')则不是我们要的块起点
+        let is_open_start = {
+            let before = start.checked_sub(1).map(|i| s.as_bytes()[i]).unwrap_or(0);
+            before != b'/' && lower[start..].get(open.len()..).map_or(false, |rest| {
+                // <tag 后应紧跟空白 / 斜杠 / >（即属性或结束）
+                rest.chars().next().map_or(false, |ch| ch == ' ' || ch == '\t' || ch == '\n' || ch == '/' || ch == '>')
+            })
+        };
+        if !is_open_start {
+            // 不是可匹配的块起点（例如闭合形态或其它 tag 文字匹配）——删掉 `<tag` 前缀继续搜，避免死循环
+            let mut n = String::with_capacity(s.len());
+            n.push_str(&s[..start]);
+            n.push_str(&s[start + open.len()..]);
+            *s = n;
+            continue;
+        }
+        // 找匹配的 close
+        let Some(rel) = lower[start..].find(&close) else {
+            // 找不到闭合：删除开标签本身
+            let Some(after_gt) = s[start..].find('>') else { break; };
+            let end = start + after_gt + 1;
+            let mut n = String::new();
+            n.push_str(&s[..start]);
+            n.push_str(&s[end..]);
+            *s = n;
+            continue;
+        };
+        let close_mark = start + rel;
+        // close_mark 指向 </tag，找其 '>'
+        let after_close = s[close_mark..].find('>').map(|i| close_mark + i + 1).unwrap_or(s.len());
+        let mut n = String::new();
+        n.push_str(&s[..start]);
+        n.push_str(&s[after_close..]);
+        *s = n;
+    }
+}
+
+/// 解码文本实体
+fn decode_entities(s: &mut String) {
+    let simple: [(&str, &str); 14] = [
+        ("&nbsp;", " "), ("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
+        ("&quot;", "\""), ("&apos;", "'"), ("&times;", "×"), ("&middot;", "·"),
+        ("&mdash;", "—"), ("&ndash;", "–"), ("&copy;", "©"), ("&hellip;", "…"),
+        ("&#39;", "'"), ("&#x27;", "'"),
+    ];
+    for &(k, v) in simple.iter() { *s = s.replace(k, v); }
+}
+
+
+pub fn angles_websearch_fetch(engine_url: &str) -> Result<String, String> {
+    let html = curl_html(engine_url)?;
+    let text = html_to_readable(&html);
+    if text.trim().is_empty() {
+        return Err(format!("搜索引擎未返回可解析结果（可能被反爬），链接: {}", engine_url));
+    }
+    // 截断，防止灌爆上下文
+    let truncated: String = text.chars().take(6000).collect();
+    let total = text.chars().count();
+    let suffix = if total > 6000 { format!("\n…(结果过长已截断，剩余约 {} 字符。若需详情，用 angles-fetchpage 打开具体链接阅读全文)", total - 6000) } else { String::new() };
+    Ok(format!("[搜索链接]\n{}\n\n[网页可读结果]\n{}{}", engine_url, truncated, suffix))
+}
+
+/// v0.6 新增工具：网页可读文本拉取器。
+/// 传入 URL → 返回该页面"浏览器里看到的正文文本"，不含 HTML 标签/CSS 像素等噪音。
+pub fn angles_fetchpage(url: &str, max_chars: usize) -> Result<String, String> {
+    let html = curl_html(url)?;
+    let mut text = html_to_readable(&html);
+    if text.trim().is_empty() {
+        return Err(format!("页面无可读文本（可能是 JS 动态渲染，需浏览器）。链接: {}", url));
+    }
+    let limit = if max_chars == 0 { 8000 } else { max_chars };
+    let total = text.chars().count();
+    if total > limit {
+        let cut: String = text.chars().take(limit).collect();
+        text = cut;
+        text.push_str(&format!("\n…(正文过长已按 {} 字符截断，原文共约 {} 字符。若需更完整可用更大 max_chars)", limit, total));
+    }
+    Ok(text)
+}

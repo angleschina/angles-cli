@@ -83,7 +83,8 @@
 | 命令 | 用法 | 说明 |
 |---|---|---|
 | `angles-fetch` | `angles-fetch <url> [output_file]` | 下载 URL 内容。不指定输出文件则输出到 stdout。 |
-| `angles-websearch` | `angles-websearch <query>` | 使用配置的搜索引擎执行网页搜索，返回结果摘要。 |
+| `angles-websearch` | `angles-websearch <query>` | 真正抓取搜索引擎结果并返回**可读文本摘要**（非仅 URL）。搜完若需全文，用 `angles-fetchpage` 打开具体链接。 |
+| `angles-fetchpage` | `angles-fetchpage <url> [max_chars]` | **v0.6 新增**：抓取 URL 返回**浏览器看到的可读正文**——自动剔除 HTML 标签、script/style、CSS 与像素等噪音。用于读搜索结果的完整页面。 |
 
 ### Git 操作
 

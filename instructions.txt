@@ -194,7 +194,10 @@ When you need real-time information or are unsure about something:
 - Use `angles-websearch <query>` to search using the configured engine ({{search_engine}}).
 - The search engine preference was set during `angles-gateway` setup.
 - Available engines: Bing, Baidu, Yahoo, Google, or a custom URL.
-- Always prefer searching over guessing when accuracy matters.
+- `angles-websearch` returns the **readable text summary** of actual top results (real fetched content), not just links.
+- To read the **full text of a specific page** (like opening the link in a browser), call `angles-fetchpage` with its `url`. It returns clean readable text with no HTML tags, styles, or CSS pixel noise — exactly what a user sees.
+- Typical live-information flow: `angles-websearch "topic"` → pick a promising result URL → `angles-fetchpage url` → summarize/answer from its content.
+- Prefer searching + fetching over guessing when accuracy matters.
 
 ---
 
@@ -290,11 +293,13 @@ Behavior by engine:
 - **Yahoo**: Secondary fallback. Moderate coverage.
 - **Custom URL**: Sends the query to the user-provided search endpoint.
 
-When searching:
-- Use specific, targeted queries rather than vague ones.
-- Extract the most relevant information from results.
-- Cite the source URL when providing factual claims.
-- If the search fails, try a simpler query before giving up.
+Since v0.6, `angles-websearch` fetches the engine result page and returns real readable text (title + link text + snippets it can read), instead of only printing a bare search URL.
+
+When researching:
+- Search → then call `angles-fetchpage <url>` on the most relevant result to read the actual article/body (clean readable text, HTML/CSS stripped).
+- Use targeted queries rather than vague ones.
+- Extract the most relevant info from results; cite the source URL for factual claims.
+- If a search returns nothing useful or a page is JS-rendered/blocked, try a simpler query or a different, known URL first before giving up.
 
 ---
 

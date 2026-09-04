@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "angles-code-cli"
-version = "0.3.0"
+version = "0.6.0"
 dependencies = [
  "axum",
  "chrono",
