@@ -457,12 +457,13 @@ pub async fn exec_once_stream(
     prompt: &str,
     tx: tokio::sync::mpsc::Sender<String>,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    exec_once_async(cfg, prompt, Some(&tx)).await
+    // quiet=true: serve/WebUI 链路不应把内容回显到终端
+    exec_once_async(cfg, prompt, Some(&tx), true).await
 }
 
 pub fn exec_once(cfg: Config, prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(exec_once_async(cfg, prompt, None))
+    rt.block_on(exec_once_async(cfg, prompt, None, false))
 }
 
 async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>> {
@@ -564,7 +565,7 @@ async fn start_chat_async(cfg: Config) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-pub async fn exec_once_async(cfg: Config, prompt: &str, chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn exec_once_async(cfg: Config, prompt: &str, chunk_tx: Option<&tokio::sync::mpsc::Sender<String>>, quiet: bool) -> Result<String, Box<dyn std::error::Error>> {
     let system_prompt = instructions::render(&cfg);
     let api_key = resolve_api_key(&cfg);
     let client = Client::new();
@@ -573,7 +574,7 @@ pub async fn exec_once_async(cfg: Config, prompt: &str, chunk_tx: Option<&tokio:
     // Tool-call loop (max 20 iterations)
     let mut final_content = String::new();
     for _ in 0..20 {
-        let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, false, chunk_tx).await?;
+        let result = stream_turn(&cfg, &system_prompt, &api_key, &client, &messages, quiet, chunk_tx).await?;
 
         if !result.content.is_empty() {
             final_content = result.content.clone();

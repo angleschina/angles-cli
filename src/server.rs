@@ -194,7 +194,8 @@ async fn chat(Json(req): Json<ChatRequest>) -> axum::response::Response {
     let body_stream = futures::stream::unfold(rx, |mut rx| async move {
         match rx.recv().await {
             Some(chunk) => {
-                let line = serde_json::json!({"type":"chunk","text": chunk}).to_string();
+                // N-DJSON 需每行一个 JSON 对象并以 \n 结尾
+                let line = serde_json::json!({"type":"chunk","text": chunk}).to_string() + "\n";
                 let ok: Result<axum::body::Bytes, Box<dyn std::error::Error + Send + Sync>> =
                     Ok(axum::body::Bytes::from(line));
                 Some((ok, rx))
