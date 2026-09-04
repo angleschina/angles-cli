@@ -6,21 +6,22 @@
 <title>Angles Gateway — 控制台</title>
 <style>
 :root{
-  --bg:#000000; --bg-2:#0a0a0a; --card:#111111; --card-2:#1a1a1a;
-  --border:#222222; --border-2:#333333;
-  --text:#e0e0e0; --muted:#888888; --muted-2:#555555;
-  --red:#ff3333; --red-bright:#ff5555; --red-dim:rgba(255,51,51,.12);
-  --green:#33ff33; --orange:#ffaa33; --red:#ff3333; --purple:#9966ff;
-  --sidebar:#efeee8;
+  --bg:#050202; --bg-2:#0d0707; --card:#13090a; --card-2:#200f10;
+  --border:#2a1619; --border-2:#3d2025;
+  --text:#e6d7d7; --muted:#9c8286; --muted-2:#6d565a;
+  --red:#ff3b3b; --red-bright:#ff6a5e; --red-dim:rgba(255,59,59,.14);
+  --green:#23d567; --orange:#e8912d;
+  --sidebar:#0b0405;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#000000; --bg-2:#0a0a0a; --card:#111111; --card-2:#26231a;
-    --border:#222222; --border-2:#3a3528;
-    --text:#e0e0e0; --muted:#8a8474; --muted-2:#6b6657;
-    --red:#ff3333; --red-bright:#ff5555; --red-dim:rgba(255,51,51,.12);
-    --green:#33ff33; --orange:#ffaa33; --red:#ff3333; --purple:#9966ff;
-    --sidebar:#1c1a12;
+    --bg:#050202; --bg-2:#0d0707; --card:#13090a; --card-2:#1f0f11;
+    --border:#2a1619; --border-2:#3d2025;
+    --text:#e9dbdb; --muted:#a08c90; --muted-2:#6f585c;
+    --red:#ff4040; --red-bright:#ff6a5e; --red-dim:rgba(255,64,64,.15);
+    --red-deep:#b3121c;
+    --green:#23d567; --orange:#e8912d;
+    --sidebar:#0b0405;
   }
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -92,7 +93,7 @@ code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,mo
 .chat-log{max-height:480px;overflow-y:auto;padding:6px 0;min-height:120px}
 .chat-msg{padding:11px 14px;margin-bottom:8px;border-radius:10px;font-size:.86rem;line-height:1.6}
 .chat-msg.user{background:var(--card-2);border:1px solid var(--border)}
-.chat-msg.bot{background:var(--red-dim);border:1px solid rgba(74,108,247,.18)}
+.chat-msg.bot{background:var(--red-dim);border:1px solid rgba(255,88,96,.16)}
 .chat-msg .who{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);margin-bottom:4px;font-weight:600}
 .chat-msg.bot .who{color:var(--red)}
 .chat-input{display:flex;gap:10px;margin-top:8px}
@@ -108,7 +109,7 @@ code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,mo
 .item-card .cat{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--muted-2);margin-top:8px;letter-spacing:.04em}
 
 .token-bar{height:8px;background:var(--bg-2);border-radius:4px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--border)}
-.token-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--orange));border-radius:4px;transition:width .5s}
+.token-fill{height:100%;background:linear-gradient(90deg,#ff4444,#8e141f);border-radius:4px;transition:width .5s}
 
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px}
 .toggle-row:last-of-type{border-bottom:none}
@@ -153,11 +154,11 @@ code,.mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,mo
 html,body{background:transparent}
 body{
   background:
-    radial-gradient(1200px 620px at 18% -8%,rgba(124,92,255,.20),transparent 60%),
-    radial-gradient(1000px 560px at 85% 8%,rgba(66,160,255,.16),transparent 55%),
-    radial-gradient(900px 700px at 55% 112%,rgba(255,88,196,.12),transparent 60%),
-    radial-gradient(700px 500px at 30% 62%,rgba(0,229,200,.08),transparent 62%),
-    linear-gradient(180deg,#050509,#0a0a12);
+    radial-gradient(1300px 640px at 16% -6%,rgba(196,26,30,.22),transparent 58%),
+    radial-gradient(1000px 560px at 86% 6%,rgba(150,18,42,.18),transparent 56%),
+    radial-gradient(950px 720px at 52% 114%,rgba(96,6,20,.24),transparent 62%),
+    radial-gradient(900px 820px at 78% 32%,rgba(120,34,10,.08),transparent 55%),
+    linear-gradient(180deg,#080506,#020108);
   background-attachment:fixed;
   background-color:#000;
 }
@@ -215,7 +216,7 @@ body{
 .nav-item.active{
   background:var(--glass-bg-strong);border-color:rgba(255,255,255,.20);
   -webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 6px 18px rgba(124,92,255,.14);
+  box-shadow:inset 2px 0 0 #ff4242,inset 0 1px 0 rgba(255,255,255,.30),0 6px 18px rgba(215,28,34,.16);
   color:#fff;
 }
 
@@ -245,16 +246,16 @@ body{
 
 /* 主按钮：实心白玻璃冒泡(liquid 高亮主操作) */
 .btn-primary{
-  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(235,238,245,.90)) !important;
-  color:#0b0b12 !important;
-  box-shadow:inset 0 1px 0 #fff,0 1px 0 rgba(255,255,255,.6),0 8px 20px rgba(124,140,255,.22) !important;
-  border:1px solid rgba(255,255,255,.9) !important;
+  background:linear-gradient(180deg,#e8242e,#a0111e) !important;
+  color:#fff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 0 rgba(0,0,0,.4),0 10px 24px rgba(200,24,30,.28) !important;
+  border:1px solid rgba(255,110,110,.45) !important;
   transition:transform .12s,box-shadow .15s,filter .15s;
 }
 .btn-primary:hover{
   filter:brightness(1.04);
   transform:translateY(-1px);
-  box-shadow:inset 0 1px 0 #fff,0 2px 0 rgba(255,255,255,.7),0 14px 30px rgba(90,108,255,.32) !important;
+  box-shadow:inset 0 1px 0 #fff,0 2px 0 rgba(255,255,255,.7),0 14px 30px rgba(120,20,26,.0) !important;
 }
 .btn-primary:active{transform:translateY(0) scale(.97);filter:brightness(.97)}
 .btn-primary:disabled{filter:grayscale(.6) brightness(.7);transform:none;box-shadow:none !important}
@@ -277,7 +278,7 @@ body{
 }
 .chat-msg.bot{
   background:var(--glass-bg);
-  border:1px solid rgba(110,130,255,.22);
+  border:1px solid rgba(255,96,100,.20);
   -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
   border-radius:16px 16px 16px 6px;box-shadow:var(--glass-high);
   margin-right:24%;
@@ -295,6 +296,14 @@ body{
   .mobile-ham{background:var(--glass-bg);border:var(--glass-border);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);box-shadow:var(--glass-high)}
   .sidebar{background:linear-gradient(200deg,rgba(255,255,255,.06),rgba(10,10,20,.65));backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%)}
 }
+
+
+/* lucide svg 尺寸与居中(在液态玻璃覆盖层底部追加,置于</style>之前)*/
+.nav-item .ic{display:flex;align-items:center;justify-content:center}
+.nav-item .ic svg{width:17px;height:17px;opacity:.92}
+.nav-item.active .ic svg{opacity:1}
+.empty-state .big{display:flex;align-items:center;justify-content:center}
+.empty-state .big svg{width:40px;height:40px;stroke-width:1.6;opacity:.85;margin-bottom:14px}
 
 </style>
 </head>
@@ -315,19 +324,19 @@ body{
   <aside class="sidebar">
     <div class="nav-group">
       <h5>会话</h5>
-      <div class="nav-item active" data-view="chat"><span class="ic">💬</span> 对话</div>
-      <div class="nav-item" data-view="sessions"><span class="ic">📜</span> 会话历史</div>
+      <div class="nav-item active" data-view="chat"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 3v4M16 3v4M3 8h18"/></svg></span> 对话</div>
+      <div class="nav-item" data-view="sessions"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></span> 会话历史</div>
     </div>
     <div class="nav-group">
       <h5>能力</h5>
-      <div class="nav-item" data-view="tools"><span class="ic">🛠</span> 工具</div>
-      <div class="nav-item" data-view="config"><span class="ic">⚙️</span> 配置</div>
-      <div class="nav-item" data-view="tokens"><span class="ic">🎟️</span> Token</div>
-      <div class="nav-item" data-view="security"><span class="ic">🔒</span> 安全策略</div>
+      <div class="nav-item" data-view="tools"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span> 工具</div>
+      <div class="nav-item" data-view="config"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span> 配置</div>
+      <div class="nav-item" data-view="tokens"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg></span> Token</div>
+      <div class="nav-item" data-view="security"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span> 安全策略</div>
     </div>
     <div class="nav-group">
       <h5>诊断</h5>
-      <div class="nav-item" data-view="diagnostics"><span class="ic">🩺</span> 诊断</div>
+      <div class="nav-item" data-view="diagnostics"><span class="ic"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span> 诊断</div>
     </div>
     <div class="sidebar-foot">
       <div class="ver">angles v0.4.1</div>
@@ -581,23 +590,23 @@ async function sendChat(){
 /* ── Sessions (real /api/sessions) ── */
 async function loadSessions(){
   var el=document.getElementById('sessions-body');
-  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.828V2"/></svg></div><div class="msg">加载中…</div></div>';
   try{
     var data=await api('/api/sessions');
-    if(data.count===0){el.innerHTML='<div class="empty-state"><div class="big">📜</div><div class="msg">暂无历史会话。<br>终端运行 <code>angles chat</code> 开始对话后会自动保存。</div></div>';return;}
+    if(data.count===0){el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></div><div class="msg">暂无历史会话。<br>终端运行 <code>angles chat</code> 开始对话后会自动保存。</div></div>';return;}
     el.innerHTML='<div class="item-grid">'+data.sessions.map(function(s){
       var dt=s.modified_unix?new Date(s.modified_unix*1000).toLocaleString():'—';
       return '<div class="item-card"><div class="name">'+esc(s.id)+'</div><div class="desc">'+(s.size_bytes/1024).toFixed(1)+' KB</div><div class="cat">'+esc(dt)+'</div></div>';
     }).join('')+'</div>';
   }catch(e){
-    el.innerHTML='<div class="empty-state"><div class="big">📜</div><div class="msg">网关未连接。<br>终端运行 <code>angles history</code> 查看。</div></div>';
+    el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></div><div class="msg">网关未连接。<br>终端运行 <code>angles history</code> 查看。</div></div>';
   }
 }
 
 /* ── Tools (real /api/tools) ── */
 async function loadTools(){
   var el=document.getElementById('tools-body');
-  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.828V2"/></svg></div><div class="msg">加载中…</div></div>';
   try{
     var data=await api('/api/tools');
     el.innerHTML='<div class="item-grid">'+data.tools.map(function(t){
@@ -605,7 +614,7 @@ async function loadTools(){
       return '<div class="item-card" style="'+danger+'"><div class="name">'+esc(t.name)+(t.dangerous?' ⚠':'')+'</div><div class="desc">'+esc(t.description)+'</div><div class="cat">'+esc(t.category)+'</div></div>';
     }).join('')+'</div>';
   }catch(e){
-    el.innerHTML='<div class="empty-state"><div class="big">🛠</div><div class="msg">网关未连接。</div></div>';
+    el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div class="msg">网关未连接。</div></div>';
   }
 }
 
@@ -636,7 +645,7 @@ async function loadConfigForm(){
     document.getElementById('cfg-search').value=cfg.search_engine;
     document.getElementById('cfg-approval').value=cfg.approval_policy;
   }catch(e){
-    document.getElementById('config-readonly').innerHTML='<div class="empty-state"><div class="big">⚙️</div><div class="msg">网关未连接。<br>终端运行 <code>angles config</code> 查看，<code>angles gateway</code> 修改。</div></div>';
+    document.getElementById('config-readonly').innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="msg">网关未连接。<br>终端运行 <code>angles config</code> 查看，<code>angles gateway</code> 修改。</div></div>';
   }
 }
 
@@ -674,7 +683,7 @@ async function saveConfig(){
 /* ── Budget (real /api/budget) ── */
 async function loadBudget(){
   var el=document.getElementById('tokens-body');
-  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.828V2"/></svg></div><div class="msg">加载中…</div></div>';
   try{
     var b=await api('/api/budget');
     el.innerHTML=
@@ -687,14 +696,14 @@ async function loadBudget(){
       '<div style="font-size:.82rem;color:var(--muted-2);margin-top:6px">剩余 '+b.remaining.toLocaleString()+' · 重置日期 '+esc(b.reset_date)+'</div></div>'+
       '<div class="card"><div class="card-title">说明</div><p style="color:var(--muted);font-size:.86rem;line-height:1.6">每日 token 预算在 config.json 的 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">daily_token_budget</code> 字段中设置。超出后自动暂停对话，次日 00:00 重置。</p></div>';
   }catch(e){
-    el.innerHTML='<div class="empty-state"><div class="big">🎟️</div><div class="msg">网关未连接。<br>预算在 config.json 的 <code>daily_token_budget</code> 中设置。</div></div>';
+    el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg></div><div class="msg">网关未连接。<br>预算在 config.json 的 <code>daily_token_budget</code> 中设置。</div></div>';
   }
 }
 
 /* ── Diagnostics (real /api/diagnostics) ── */
 async function loadDiag(){
   var el=document.getElementById('diag-body');
-  el.innerHTML='<div class="empty-state"><div class="big">⏳</div><div class="msg">加载中…</div></div>';
+  el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.828V2"/></svg></div><div class="msg">加载中…</div></div>';
   try{
     var d=await api('/api/diagnostics');
     function yn(ok){return ok?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>';}
@@ -711,7 +720,7 @@ async function loadDiag(){
       '</div>'+
       '<div class="card"><div class="card-title">操作</div><p style="color:var(--muted);font-size:.86rem">终端运行 <code class="mono" style="background:var(--card-2);color:var(--red-bright);padding:1px 5px;border-radius:3px;border:1px solid var(--border)">angles doctor</code> 获取完整诊断报告。</p></div>';
   }catch(e){
-    el.innerHTML='<div class="empty-state"><div class="big">🩺</div><div class="msg">网关未连接。<br>终端运行 <code>angles doctor</code> 诊断。</div></div>';
+    el.innerHTML='<div class="empty-state"><div class="big"><svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="msg">网关未连接。<br>终端运行 <code>angles doctor</code> 诊断。</div></div>';
   }
 }
 
